@@ -7,12 +7,12 @@ import itertools
 import pandas as pd
 from bs4 import BeautifulSoup
 from pprint import pprint
-from config import (IasaSp,
+from config import (IasaSp as sp,
+                    IasaMmsa as mmsa,
                     folder_csv,
                     link_iasa_personal_sp,
                     link_iasa_personal_mmsa)
 
-sp = IasaSp()
 
 class DataDriver:
     """
@@ -268,7 +268,29 @@ class ParseIasaSp(ParseDriver):
             if sp.rechange_accomplishments in value.keys():
                 replacement = value.pop(sp.rechange_accomplishments)
                 value[sp.rechange_accomplishments] = self.remove_spaces(replacement.replace(":", ''))
+
+        for value in value_info:
+            for column_change in sp.rechange_list_into:
+                if column_change in value.keys() and ('•' in value[column_change] or '-' in value[column_change]):
+                    value_pop = value.pop(column_change)
+                    value_new = sp.rechange_sub_sep.join(self.remove_spaces(v).capitalize() for v in re.split(r'-|•', value_pop) if v)
+                    for value_searched, value_return in sp.rechange_dict_values.items():
+                        if re.match(value_searched, value_new, re.IGNORECASE):
+                            pattern = re.compile(value_searched, re.IGNORECASE)
+                            value_new = pattern.sub(value_return, value_new)
+                    value[column_change] = value_new
         return value_info
+
+    def return_names(self, name_parsed:list) -> list:
+        """
+        Method which is dedicated to return names from parsed values
+        Input:  name_parsed = names which were previously parsed
+        Output: list which could be further used in analysis
+        """
+        titles = [n.get('title') for n in name_parsed]
+        names = [self.make_rename(n) for n in titles if n]
+        names = [self.make_double_surname(n) for n in names]
+        return [n.replace(sp.rechange_val, sp.rechange_for) if sp.rechange_val in n else n for n in names]
 
     def proceed_parse(self, link:str) -> None:
         """
@@ -283,10 +305,7 @@ class ParseIasaSp(ParseDriver):
             value_parsed = value_parsed.find('tr')
             info_parsed = value_parsed.find_all('p')
             name_parsed = value_parsed.find_all('a')
-            tst = [n.get('title') for n in name_parsed]
-            names = [self.make_rename(n) for n in tst if n]
-            names = [self.make_double_surname(n) for n in names]
-            names = [n.replace(sp.rechange_val, sp.rechange_for) if sp.rechange_val in n else n for n in names]
+            names = self.return_names(name_parsed)
             for info in info_parsed:
                 value_info.append(self.parse_manually(info))
         value_info = [v for v in value_info if v]
@@ -297,7 +316,7 @@ class ParseIasaSp(ParseDriver):
         df_name = self.driver_csv.get_name_csv(sp.df_iasa_sp)
         df_path = self.driver_csv.get_path(self.driver_csv.path_csv, df_name)
         self.driver_csv.save_df(df, df_path)
-        
+
 
 class ParseIasaMmsa(ParseDriver):
     """
@@ -314,11 +333,11 @@ class ParseIasaMmsa(ParseDriver):
         """
         pass
 
-    def proceed_parse(self, link:str) -> None:
+    def proceed_links(self, link:str) -> set:
         """
-        Method which is dedicated to procced parsing of the current link in cases
-        Input:  link = link of the
-        Output: we successfully saved parsed value in 
+        Method which is dedicated to start work with links
+        Input:  link = link of th main parse string
+        Output: list of the names and list with links of this names 
         """
         value_info = []
         value_html = self.develop_request(link)
@@ -329,15 +348,209 @@ class ParseIasaMmsa(ParseDriver):
             value_names = [a.text for a in value_parsed]
             link_original = self.cut_link(link)
             value_link = [self.join_link(link_original, a.get('href')) for a in value_parsed]
-            #TODO add further developmnt
+            return value_names, value_link
+        return [], []
 
-    def develop_special_occassions(self, value_info:list) -> list:
+    def return_phone(self, value_parsed:bs4.element.Tag) -> str:
+        """
+        Method which is dedicated to parse phone numbers from the
+        Input:  value_parsed = parsed html from the site
+        Output: string of the phone number
+        """
+        value_email = value_parsed.find(class_='field-name-field-s-person-phone-display')
+        if value_email:
+            return value_email.find(class_='field-items').text
+        return ''
+
+    def return_homeplace(self, value_parsed:bs4.element.Tag) -> str:
+        """
+        Method which is dedicated to parse the homeplace in the campus
+        Input:  value_parsed = value which was parsed
+        Output: homeplace of the 
+        """
+        value_email = value_parsed.find(class_='field-name-field-s-person-office-location')
+        if value_email:
+            return value_email.find(class_='field-items').text
+        return ''
+
+    def return_email(self, value_parsed:bs4.element.Tag) -> str:
+        """
+        Method which is dedicated to parse email of the teacher
+        Input:  value_parsed = value which was parsed
+        """
+        value_email = value_parsed.find(class_='field-type-email')
+        if value_email:
+            return value_email.find(class_='field-items').text
+        return ''
+
+    def return_photo(self, value_parsed:bs4.element.Tag) -> str:
+        """
+        Method which is dedicated to parse photo of the teacher
+        Input:  value_parsed = value which was parsed
+        Output: string with an image
+        """
+        value_img = value_parsed.find('img')
+        return value_img['src'] if value_img else ''
+    
+    def return_status(self, value_parsed:bs4.element.Tag) -> str:
+        """
+        Method which is dedicated to parse status on a cafdra status
+        of a worker
+        Input:  value_parsed = value which was prviously used
+        Output: status of the teacher
+        """
+        value_status = value_parsed.find(class_='field-name-field-s-person-faculty-type')
+        if value_status:
+            return value_status.text
+        return ''
+
+    def return_accomplishments(self, value_parsed:bs4.element.Tag) -> str:
+        """
+        Method which is dedicated to parse accomplihments
+        Input:  value_parsed = value which was previously used
+        Output: accomplishment
+        """
+        value_accomplishments = value_parsed.find(class_='field-name-field-degree')
+        if value_accomplishments:
+            return value_accomplishments.text
+        return ''
+
+    def return_accolodates(self, value_parsed:bs4.element.Tag) -> str:
+        """
+        Method is about to return biography from some of them
+        Input:  value_parsed = previously parsed values
+        Output: text about the person
+        """
+        value_accolodates = value_parsed.find(class_='field-type-text-with-summary')
+        if value_accolodates:
+            return value_accolodates.text
+        return ''
+
+    def return_work_position(self, value_parsed:bs4.element.Tag) -> str:
+        """
+        Method which is dedicated to parse work position of the person inside the faculty
+        Input:  value_parsed = previously parsed values
+        Output: teext about the work position
+        """
+        value_work_position = value_parsed.find(class_='field-name-field-s-person-staff-type')
+        if value_work_position:
+            return value_work_position.text
+        return ''
+
+    def return_subjects_lections(self, value_parsed:bs4.element.Tag) -> list:
+        """
+        Method which is dedicated to return subjects which are lectures to selected specialization
+        Input:  value_parsed = parsed previously value
+        Output: list with format [specialization, subject]
+        """
+        value_subjects = value_parsed.find('div', {'id':'block-views-discipline-by-lecturer-block'})
+        if value_subjects:
+            value_subjects = value_subjects.find(class_='view-discipline-by-lecturer')
+            value_subjects = value_subjects.find('table')
+            value_subjects = value_subjects.find_all('tr')
+            value_subjects = [v.find_all('td') for v in value_subjects]
+            value_subjects = [v for v in value_subjects if v]
+            return [[self.remove_spaces(k.text.replace('\n', '')) for k in v] for v in value_subjects]
+        return []
+
+    def return_subjects_practice(self, value_parsed:bs4.element.Tag) -> list:
+        """
+        Method which is dedicated to return subjects which are practices to selected specialization
+        Input:  value_parsed = parsed previously value
+        Output: list with format [specialization, subject]
+        """
+        value_subjects = value_parsed.find('div', {'id': 'block-views-discipline-by-lecturer-block-1'})
+        if value_subjects:
+            value_subjects = value_subjects.find(class_='view-discipline-by-lecturer')
+            value_subjects = value_subjects.find('table')
+            value_subjects = value_subjects.find_all('tr')
+            value_subjects = [v.find_all('td') for v in value_subjects]
+            value_subjects = [v for v in value_subjects if v]
+            return [[self.remove_spaces(k.text.replace('\n', '')) for k in v] for v in value_subjects]
+        return []
+
+    def return_publications_info(self, value_parsed:bs4.element.Tag) -> list:
+        """
+        Method which is dedicated to return information about the 
+        Input:  value_parsed = parsed previously value
+        Output: list with format of the publications
+        """
+        value_publications_info = value_parsed.find('div', {'id':'block-views-publications-by-lecturer-block'})
+        if value_publications_info:
+            value_publications_info = value_publications_info.find(class_='view-id-publications_by_lecturer')
+            value_publications_info = [self.remove_spaces(v) for v in value_publications_info.text.split('\n')]
+            return [v for v in value_publications_info if v]
+        return []
+
+    def return_scientific_directions(self, value_parsed:bs4.element.Tag) -> list:
+        """
+        Method which is dedicated to return scientific directions of the lecturer
+        Input:  value_parsed = parsed previously page
+        Output: list of the 
+        """
+        value_scientific_directions = value_parsed.find('div', {'id':'block-views-a8d2aa34f6c1a0321bd21a41ba6252d5'})
+        if value_scientific_directions:
+            value_scientific_directions = value_scientific_directions.find(class_='view-research-areas-by-lecturer')
+            value_scientific_directions = value_scientific_directions.find('table')
+            value_scientific_directions = value_scientific_directions.find_all('tr')
+            value_scientific_directions = [v.find_all('td') for v in value_scientific_directions]
+            value_scientific_directions = [v for v in value_scientific_directions if v]
+            return [[self.remove_spaces(k.text.replace('\n', '')) for k in v] for v in value_scientific_directions]
+        return []
+
+    def proceed_parse(self, link:str) -> None:
+        """
+        Method which is dedicated to procced parsing of the current link in cases
+        Input:  link = link of the
+        Output: we successfully saved parsed value in 
+        """
+        value_info = []
+        value_names, value_links = self.proceed_links(link)
+        if value_names and value_links:
+            for value_link in value_links:
+                value_html = self.develop_request(value_link)
+                value_dictionary = {}
+                if value_html:
+                    value_parsed = BeautifulSoup(value_html, 'html.parser')
+                    value_contact = value_parsed.find(class_='mmsa-column3 mmsa-secondary-content')
+                    value_contact = value_contact.find(class_='block block-ds-extras')
+                    value_contact = value_contact.find_all(class_='mmsa-content-container')[-1]
+                    
+                    value_photo = self.return_photo(value_contact)
+                    value_email = self.return_email(value_contact)
+                    value_phone = self.return_phone(value_contact)
+                    value_homeplace = self.return_homeplace(value_contact)
+                    
+                    value_parsed_info = value_parsed.find(class_='group-header mmsa-column12')
+                    value_status = self.return_status(value_parsed_info)
+                    value_accomplishments = self.return_accomplishments(value_parsed_info)
+                    value_accolodates = self.return_accolodates(value_parsed_info)
+                    value_work_position = self.return_work_position(value_parsed_info)
+
+                    value_subjects_lections = self.return_subjects_lections(value_parsed)
+                    value_scientific_directions = self.return_scientific_directions(value_parsed)
+                    value_publications_info = self.return_publications_info(value_parsed)
+                    value_subjects_practices = self.return_subjects_practice(value_parsed)
+                    
+                    value_dictionary = self.develop_special_occassions(value_dictionary)
+                    #TODO add to one pattern of the phone
+                    #TODO add to one pattern of the homespace
+                    #TODO add to one pattern of the work position
+                value_info.append(value_dictionary)
+            df = pd.read_json(json.dumps(value_info))
+            df_name = self.driver_csv.get_name_csv(mmsa.df_iasa_mmsa)
+            df_path = self.driver_csv.get_path(self.driver_csv.path_csv, df_name)
+            self.driver_csv.save_df(df, df_path)
+
+                
+    def develop_special_occassions(self, value_info:dict) -> dict:
         """
         Method which is dedicated to react in cases of the specific purposes
         Input:  value_info = list with parsed values
         Output: value_info but it resended its flaws
         """
-        pass
+        #TODO insert from the biography values from theit possible values
+        return value_info
 
 
 
@@ -345,5 +558,6 @@ class ParseIasaMmsa(ParseDriver):
 if __name__ == "__main__":
     a = ParseIasaSp()
     v = a.proceed_parse(link_iasa_personal_sp)
+    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
     # a = ParseIasaMmsa()
     # v = a.proceed_parse(link_iasa_personal_mmsa)
