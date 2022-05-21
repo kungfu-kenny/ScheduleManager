@@ -76,6 +76,11 @@ class Folders:
         'storage'
     )
 
+class IasaMMSA:
+    thread = 15
+    df_name = 'teachers_mmsa.csv'
+    link_start = 'http://mmsa.kpi.ua/lecturers'
+
 class IasaSP:
     df_name = 'teachers_sp.csv'
     link_start = 'https://cad.kpi.ua/about-us/teachers/'

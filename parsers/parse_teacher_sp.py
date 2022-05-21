@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-from pprint import pprint
 from bs4 import BeautifulSoup
 from parsers.parse_teacher import ParseTeachers
 from config import Folders, IasaSP
@@ -64,7 +63,7 @@ class DataTeacherSp(ParseTeachers):
         Input:  None
         Output: we developed the values of it
         """
-        value_html = self.get_html_test(IasaSP.link_start)
+        value_html = self.get_html_sync(IasaSP.link_start)
         soup = BeautifulSoup(value_html, 'html.parser')
         soup = soup.find('div', {"class":"entry-content"})
         names = soup.find_all('p', {"class":"professor-name"})
