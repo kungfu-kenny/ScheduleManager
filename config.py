@@ -69,5 +69,23 @@ class IasaMmsa:
     rechange_accomplishments = accomplihments
     rechange_special_status = special_status
 
-
-# class RozkladKPI:
+class IasaSP:
+    df_name = 'teachers_sp.csv'
+    link_start = 'https://cad.kpi.ua/about-us/teachers/'
+    link_download_xls = 'http://cad.kpi.ua/wp-content/uploads/2022/01/расп2сем1-5курс21-22СП.xls'
+    sep = 'ghrfbnikjfghdjubikvxtrcsfeslkrdaijuwzhXC:Ogfhdyzrcjukvx ehgjkybudfzxcrl'
+    disp_theory, disp_practice = "Викладає дисципліни:", "Проводить лабораторно-практичні заняття з дисциплін:"
+    list_ul = [disp_theory, disp_practice]
+    rechange_keys = {
+        "Дата народження:": "Birthdate",
+        "Місце народження:": "Birthplace",
+        "Освіта:": "Education",
+        "Вчений ступінь і звання:": "Scientific Accolodates",
+        "Академічні звання:": "Academic Accolodates",
+        "Почесні звання:": "Honor Accolodates",
+        "Рік з якого працює на кафедрі СП:": "Year Working",
+        disp_theory: "Disciplines",
+        disp_practice: "Work Practice",
+        "Галузь наукової діяльності:": "Science Spectre",
+        "Загальна кількість публікацій:": "Publications",
+    }
