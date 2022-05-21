@@ -69,6 +69,13 @@ class IasaMmsa:
     rechange_accomplishments = accomplihments
     rechange_special_status = special_status
 
+class Folders:
+    folder_here = os.getcwd()
+    folder_storage = os.path.join(
+        folder_here,
+        'storage'
+    )
+
 class IasaSP:
     df_name = 'teachers_sp.csv'
     link_start = 'https://cad.kpi.ua/about-us/teachers/'
@@ -76,6 +83,7 @@ class IasaSP:
     sep = 'ghrfbnikjfghdjubikvxtrcsfeslkrdaijuwzhXC:Ogfhdyzrcjukvx ehgjkybudfzxcrl'
     disp_theory, disp_practice = "Викладає дисципліни:", "Проводить лабораторно-практичні заняття з дисциплін:"
     list_ul = [disp_theory, disp_practice]
+    rechange_name = 'Name'
     rechange_keys = {
         "Дата народження:": "Birthdate",
         "Місце народження:": "Birthplace",
@@ -88,4 +96,6 @@ class IasaSP:
         disp_practice: "Work Practice",
         "Галузь наукової діяльності:": "Science Spectre",
         "Загальна кількість публікацій:": "Publications",
+        "Задачі та напрямки діяльності:": "Tasks",
+        "122131242455657632537845365334212423214234234`123": rechange_name,
     }
