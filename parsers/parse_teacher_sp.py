@@ -68,7 +68,7 @@ class DataTeacherSp(ParseTeachers):
         soup = soup.find('div', {"class":"entry-content"})
         names = soup.find_all('p', {"class":"professor-name"})
         subjects = [
-            ';'.join(j.text for j in f.find_all('li')) 
+            '|'.join(j.text for j in f.find_all('li')) 
             for f in soup.find_all('ul')
         ]
         teacher, teachers = [], []
@@ -130,4 +130,3 @@ class DataTeacherSp(ParseTeachers):
             ),
             self.file_csv
         )
-        

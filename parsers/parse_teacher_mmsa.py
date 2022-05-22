@@ -97,10 +97,10 @@ class DataTeacherMmsa(ParseTeachers):
         loop = asyncio.get_event_loop()
         list_html = loop.run_until_complete(
             self.get_html_all(
-                list_teachers[:15]
+                list_teachers
             )
         )
-        for html in list_html:
+        for html in list_html[:10]:
             soup = BeautifulSoup(html, 'html.parser')
             value_subjects_lections = self.configure_subjects_lections(soup)
             value_scientific_directions = self.configure_scientific_directions(soup)

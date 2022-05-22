@@ -7,7 +7,7 @@ import itertools
 import pandas as pd
 from bs4 import BeautifulSoup
 from pprint import pprint
-from config import (IasaSp as sp,
+from config import (Folders, IasaSp as sp,
                     IasaMmsa as mmsa,
                     folder_csv,
                     link_iasa_personal_sp,
@@ -323,8 +323,11 @@ class ParseIasaMmsa(ParseDriver):
     class which is dedicated to basically parse from the 
     """
     def __init__(self):
+        self.get_name_csv = lambda x: f"{x}.csv"
         self.join_link = lambda *x: ''.join(x)
         super().__init__()
+        self.path_original = os.path.dirname(os.path.realpath(__file__))
+        self.path_csv = Folders.folder_storage
 
     def parse_manually(self, parse_object:bs4.element.Tag) -> dict:
         """
@@ -332,6 +335,35 @@ class ParseIasaMmsa(ParseDriver):
         Input:  parse_object
         """
         pass
+
+    @staticmethod
+    def get_path(*path_folders:set) -> str:
+        """
+        Static method which is dedicated to create full path
+        Input:  path_folders = set with values which would be currently used
+        OutputL string with our new path
+        """
+        return os.sep.join(path_folders)
+
+    @staticmethod
+    def save_df(value_df:pd.DataFrame, value_path:str, value_test:bool=True) -> None:
+        """
+        Static method which is dedicated to save dataframe for it
+        Input:  value_df = dataframe which neds to be saved
+                value_path = path which is would take
+                value_test = is it test or not
+        Output: We successfully created new dataframe within the folder
+        """
+        if not value_test:
+            if not os.path.isfile(value_path):
+                value_df.to_csv(value_path, index=False)
+            value_name, value_ext = os.path.splitext(value_path)
+            if value_ext != '.csv':
+                value_df.to_csv(value_path, index=False)
+            else:
+                print("You have this file")
+        else:
+            value_df.to_csv(value_path, index=False)
 
     def proceed_links(self, link:str) -> set:
         """
@@ -538,9 +570,9 @@ class ParseIasaMmsa(ParseDriver):
                     #TODO add to one pattern of the work position
                 value_info.append(value_dictionary)
             df = pd.read_json(json.dumps(value_info))
-            df_name = self.driver_csv.get_name_csv(mmsa.df_iasa_mmsa)
-            df_path = self.driver_csv.get_path(self.driver_csv.path_csv, df_name)
-            self.driver_csv.save_df(df, df_path)
+            df_name = self.get_name_csv(mmsa.df_iasa_mmsa)
+            df_path = self.get_path(self.path_csv, df_name)
+            self.save_df(df, df_path)
 
                 
     def develop_special_occassions(self, value_info:dict) -> dict:
@@ -556,8 +588,8 @@ class ParseIasaMmsa(ParseDriver):
 
 
 if __name__ == "__main__":
-    a = ParseIasaSp()
-    v = a.proceed_parse(link_iasa_personal_sp)
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-    # a = ParseIasaMmsa()
-    # v = a.proceed_parse(link_iasa_personal_mmsa)
+    # a = ParseIasaSp()
+    # v = a.proceed_parse(link_iasa_personal_sp)
+    # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+    a = ParseIasaMmsa()
+    v = a.proceed_parse(link_iasa_personal_mmsa)
