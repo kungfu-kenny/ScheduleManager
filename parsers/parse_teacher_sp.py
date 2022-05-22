@@ -118,15 +118,16 @@ class DataTeacherSp(ParseTeachers):
         Input:  None
         Output: we parsed the values of the selected values
         """
+        if self.get_check_development(self.file_csv):
+            return
         prev = self.start_parse_html()
-        if not self.get_check_development(self.file_csv):
-            self.develop_csv(
-                pd.DataFrame(
-                    {
-                        k: [i.get(k, '') for i in prev]
-                        for k in IasaSP.rechange_keys.values()
-                    } 
-                ),
-                self.file_csv
-            )
+        self.develop_csv(
+            pd.DataFrame(
+                {
+                    k: [i.get(k, '') for i in prev]
+                    for k in IasaSP.rechange_keys.values()
+                } 
+            ),
+            self.file_csv
+        )
         
