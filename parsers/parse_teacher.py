@@ -1,5 +1,5 @@
-import asyncio
 import os
+import asyncio
 import aiohttp
 import requests
 import pandas as pd
@@ -45,6 +45,25 @@ class ParseTeachers:
         return ''
 
     @staticmethod
+    def make_sublists(value_list:list, n:int=IasaMMSA.thread) -> list:
+        """
+        Function which is dedicated to create the list of lists n size
+        Input:  value_list = list values
+                n = integer to new size
+        Output: list of lists n size
+        """
+        def chunk(value_list:list, n:int):
+            """
+            Function for chunking values of the
+            Input:  value_list = original list
+                    n = length of the sublists
+            Output: len on which to chunk values
+            """
+            for i in range(0, len(value_list), n):
+                yield value_list[i:i + n]
+        return list(chunk(value_list, n))
+
+    @staticmethod
     async def get_html_async(value_link:str, session:object) -> str:
         """
         Async static method which is dedicated to get html values
@@ -52,7 +71,7 @@ class ParseTeachers:
                 session = previously created session of the values
         Output: we developed the html async values
         """
-        async with session.get(value_link) as resp:
+        async with session.get(value_link, ssl=False) as resp:
             if resp.status == 200:
                 return await resp.text()
         return ''
@@ -64,12 +83,17 @@ class ParseTeachers:
         Output: list of previously dedicated html texts
         """
         semaphore = asyncio.Semaphore(IasaMMSA.thread)
+        res = []
         async with semaphore:
             async with aiohttp.ClientSession(trust_env=True) as session:
-                tasks = [
-                    asyncio.create_task(
-                        self.get_html_async(value_link, session)
+                for links in self.make_sublists(value_links):
+                    tasks = [
+                        asyncio.create_task(
+                            self.get_html_async(value_link, session)
+                        )
+                        for value_link in links
+                    ]
+                    res.extend(
+                        await asyncio.gather(*tasks)
                     )
-                    for value_link in value_links
-                ]
-                return await asyncio.gather(*tasks)
+        return res

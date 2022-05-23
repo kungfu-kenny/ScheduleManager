@@ -104,6 +104,7 @@ class DataTeacherSp(ParseTeachers):
 
         for value_dict, name in zip(value_dicts, names):
             value_dict[Keys.name] = name
+            value_dict[Keys.link] = IasaSP.link_start
             lists = value_dict.pop('next', [])
             for l in lists:
                 value_dict.update(

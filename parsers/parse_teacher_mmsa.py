@@ -4,7 +4,11 @@ import pandas as pd
 from pprint import pprint
 from bs4 import BeautifulSoup, element
 from parsers.parse_teacher import ParseTeachers
-from config import Folders, IasaMMSA
+from config import (
+    Keys,
+    Folders, 
+    IasaMMSA, 
+)
 
 
 class DataTeacherMmsa(ParseTeachers):
@@ -134,38 +138,27 @@ class DataTeacherMmsa(ParseTeachers):
         loop = asyncio.get_event_loop()
         list_html = loop.run_until_complete(
             self.get_html_all(
-                list_teachers[:15]
+                list_teachers[:]#50]
             )
         )
-        for html, link in zip(list_html[:15], list_teachers[:15]):
+        value_return = []
+        for html, link in zip(list_html, list_teachers):
             soup = BeautifulSoup(html, 'html.parser')
-
             value_parsed_info = soup.find(class_='group-header mmsa-column12')
-            value_status = self.configure_status(value_parsed_info)
-            value_accolodates = self.configure_accolodates(value_parsed_info)
-            value_work_position = self.configure_work_position(value_parsed_info)
-
-            value_subjects_lections = self.configure_subjects_lections(soup)
-            value_scientific_directions = self.configure_scientific_directions(soup)
-            value_publications_info = self.configure_publications_info(soup)
-            value_subjects_practices = self.configure_subjects_practice(soup)
-            # print(link)
-            # print(value_status)
-            # print('-----------------------------------------------')
-            # print(value_accolodates)
-            # print('-----------------------------------------------')
-            # print(value_work_position)
-            # print('-----------------------------------------------')
-            # print('-----------------------------------------------')
-            # pprint(value_subjects_lections)
-            # print('-----------------------------------------------')
-            # pprint(value_scientific_directions)
-            # print('-----------------------------------------------')
-            # pprint(value_publications_info)
-            # print('-----------------------------------------------')
-            # pprint(value_subjects_practices)
-            # print('-----------------------------------------------')
-            # print('cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc')
+            value_return.append(
+                {
+                    Keys.name: soup.find('h1', {"class":"mmsa-sub-title"}).text,
+                    Keys.link: link,
+                    Keys.accolodates_scientific: self.configure_status(value_parsed_info),
+                    Keys.accolodates_academic: self.configure_accolodates(value_parsed_info),
+                    Keys.tasks: self.configure_work_position(value_parsed_info),
+                    Keys.disciplines_theory: self.configure_subjects_lections(soup),
+                    Keys.science_spectre: self.configure_scientific_directions(soup),
+                    Keys.publications: self.configure_publications_info(soup),
+                    Keys.disciplines_practice: self.configure_subjects_practice(soup),
+                }
+            )
+        return value_return
 
     def start_parse(self) -> None:
         """
@@ -175,4 +168,13 @@ class DataTeacherMmsa(ParseTeachers):
         """
         if self.get_check_development(self.file_csv):
             return
-        self.start_parse_html()
+        prev = self.start_parse_html()
+        self.develop_csv(
+            pd.DataFrame(
+                {
+                    k: [i.get(k, '') for i in prev]
+                    for k in IasaMMSA.rechange_list
+                } 
+            ),
+            self.file_csv
+        )
