@@ -2,7 +2,11 @@ import os
 import pandas as pd
 from bs4 import BeautifulSoup
 from parsers.parse_teacher import ParseTeachers
-from config import Folders, IasaSP
+from config import ( 
+    Keys,
+    Folders, 
+    IasaSP,
+)
 
 
 class DataTeacherSp(ParseTeachers):
@@ -99,7 +103,7 @@ class DataTeacherSp(ParseTeachers):
         ]
 
         for value_dict, name in zip(value_dicts, names):
-            value_dict[IasaSP.rechange_name] = name
+            value_dict[Keys.name] = name
             lists = value_dict.pop('next', [])
             for l in lists:
                 value_dict.update(

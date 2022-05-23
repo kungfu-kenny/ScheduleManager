@@ -31,8 +31,9 @@ class DataTeacherMmsa(ParseTeachers):
             value_subjects = value_subjects.find_all('tr')
             value_subjects = [v.find_all('td') for v in value_subjects]
             value_subjects = [v for v in value_subjects if v]
-            return [[k.text.replace('\n', '').strip() for k in v] for v in value_subjects]
-        return []
+            value_subjects = [[k.text.replace('\n', '').strip() for k in v] for v in value_subjects]
+            return '|'.join(f"{subject[1]}({subject[0]})" for subject in value_subjects)
+        return ''
 
     def configure_scientific_directions(self, value_parsed:element.Tag) -> list:
         """
@@ -47,8 +48,9 @@ class DataTeacherMmsa(ParseTeachers):
             value_scientific_directions = value_scientific_directions.find_all('tr')
             value_scientific_directions = [v.find_all('td') for v in value_scientific_directions]
             value_scientific_directions = [v for v in value_scientific_directions if v]
-            return [[k.text.replace('\n', '').strip() for k in v] for v in value_scientific_directions]
-        return []
+            value_scientific_directions = [[k.text.replace('\n', '').strip() for k in v] for v in value_scientific_directions]
+            return '|'.join(f"{subject[1]}({subject[0]})" for subject in value_scientific_directions)
+        return ''
 
     def configure_publications_info(self, value_parsed:element.Tag) -> list:
         """
@@ -60,8 +62,8 @@ class DataTeacherMmsa(ParseTeachers):
         if value_publications_info:
             value_publications_info = value_publications_info.find(class_='view-id-publications_by_lecturer')
             value_publications_info = [v.strip() for v in value_publications_info.text.split('\n')]
-            return [v for v in value_publications_info if v]
-        return []
+            return '|'.join(v for v in value_publications_info if v)
+        return ''
 
     def configure_subjects_practice(self, value_parsed:element.Tag) -> list:
         """
@@ -75,12 +77,47 @@ class DataTeacherMmsa(ParseTeachers):
             value_subjects = value_subjects.find('table')
             value_subjects = value_subjects.find_all('tr')
             value_subjects = [v.find_all('td') for v in value_subjects]
-            value_subjects = [v for v in value_subjects if v]
-            return [
-                [k.text.replace('\n', '').strip() for k in v] for v in value_subjects
+            value_subjects = [
+                [k.text.replace('\n', '').strip() for k in v] for v in [v for v in value_subjects if v]
             ]
-        return []
+            return '|'.join(f"{subject[1]}({subject[0]})" for subject in value_subjects)
+        return ''
 
+    @staticmethod
+    def configure_status(value_parsed:element.Tag) -> str:
+        """
+        Static method which is dedicated to parse status on a cafdra status
+        of a worker
+        Input:  value_parsed = value which was prveiously used
+        Output: status of the teacher
+        """
+        return ', '.join(
+            f.text for f in [
+                value_parsed.find(class_='field-name-field-s-person-faculty-type'),
+                value_parsed.find(class_='field-name-field-degree')
+            ] if f
+        )
+
+    @staticmethod
+    def configure_accolodates(value_parsed:element.Tag) -> str:
+        """
+        Static method is about to return biography from some of them
+        Input:  value_parsed = previously parsed values
+        Output: text about the person
+        """
+        value_accolodates = value_parsed.find(class_='field-type-text-with-summary')
+        return value_accolodates.text if value_accolodates else ''
+
+    @staticmethod
+    def configure_work_position(value_parsed:element.Tag) -> str:
+        """
+        Static method which is dedicated to parse work position of the person inside the faculty
+        Input:  value_parsed = previously parsed values
+        Output: teext about the work position
+        """
+        value_work_position = value_parsed.find(class_='field-name-field-s-person-staff-type')
+        return value_work_position.text if value_work_position else ''
+        
     def start_parse_html(self) -> list:
         """
         Method which is dedicated to parse selected values
@@ -97,15 +134,29 @@ class DataTeacherMmsa(ParseTeachers):
         loop = asyncio.get_event_loop()
         list_html = loop.run_until_complete(
             self.get_html_all(
-                list_teachers
+                list_teachers[:15]
             )
         )
-        for html in list_html[:10]:
+        for html, link in zip(list_html[:15], list_teachers[:15]):
             soup = BeautifulSoup(html, 'html.parser')
+
+            value_parsed_info = soup.find(class_='group-header mmsa-column12')
+            value_status = self.configure_status(value_parsed_info)
+            value_accolodates = self.configure_accolodates(value_parsed_info)
+            value_work_position = self.configure_work_position(value_parsed_info)
+
             value_subjects_lections = self.configure_subjects_lections(soup)
             value_scientific_directions = self.configure_scientific_directions(soup)
             value_publications_info = self.configure_publications_info(soup)
             value_subjects_practices = self.configure_subjects_practice(soup)
+            # print(link)
+            # print(value_status)
+            # print('-----------------------------------------------')
+            # print(value_accolodates)
+            # print('-----------------------------------------------')
+            # print(value_work_position)
+            # print('-----------------------------------------------')
+            # print('-----------------------------------------------')
             # pprint(value_subjects_lections)
             # print('-----------------------------------------------')
             # pprint(value_scientific_directions)

@@ -76,10 +76,27 @@ class Folders:
         'storage'
     )
 
+class Keys:
+    birthplace = "Birthplace"
+    birthdate = "Birthdate"
+    education = "Education"
+    accolodates_scientific = "Scientific Accolodates"
+    accolodates_academic = "Academic Accolodates"
+    accolodates_honor = "Honor Accolodates"
+    year = "Year Working"
+    disciplines_theory = "Disciplines Theory"
+    disciplines_practice = "Disciplines Practice"
+    science_spectre = "Science Spectre"
+    publications = "Publications"
+    tasks = "Tasks"
+    name = "Name"
+
 class IasaMMSA:
     thread = 15
     df_name = 'teachers_mmsa.csv'
     link_start = 'http://mmsa.kpi.ua/lecturers'
+    rechange_list = [] 
+
 
 class IasaSP:
     df_name = 'teachers_sp.csv'
@@ -88,19 +105,18 @@ class IasaSP:
     sep = 'ghrfbnikjfghdjubikvxtrcsfeslkrdaijuwzhXC:Ogfhdyzrcjukvx ehgjkybudfzxcrl'
     disp_theory, disp_practice = "Викладає дисципліни:", "Проводить лабораторно-практичні заняття з дисциплін:"
     list_ul = [disp_theory, disp_practice]
-    rechange_name = 'Name'
     rechange_keys = {
-        "Дата народження:": "Birthdate",
-        "Місце народження:": "Birthplace",
-        "Освіта:": "Education",
-        "Вчений ступінь і звання:": "Scientific Accolodates",
-        "Академічні звання:": "Academic Accolodates",
-        "Почесні звання:": "Honor Accolodates",
-        "Рік з якого працює на кафедрі СП:": "Year Working",
-        disp_theory: "Disciplines",
-        disp_practice: "Work Practice",
-        "Галузь наукової діяльності:": "Science Spectre",
-        "Загальна кількість публікацій:": "Publications",
-        "Задачі та напрямки діяльності:": "Tasks",
-        "122131242455657632537845365334212423214234234`123": rechange_name,
+        "Дата народження:": Keys.birthdate,
+        "Місце народження:": Keys.birthplace,
+        "Освіта:": Keys.education,
+        "Вчений ступінь і звання:": Keys.accolodates_scientific,
+        "Академічні звання:": Keys.accolodates_academic,
+        "Почесні звання:": Keys.accolodates_honor,
+        "Рік з якого працює на кафедрі СП:": Keys.year,
+        disp_theory: Keys.disciplines_theory,
+        disp_practice: Keys.disciplines_practice,
+        "Галузь наукової діяльності:": Keys.science_spectre,
+        "Загальна кількість публікацій:": Keys.publications,
+        "Задачі та напрямки діяльності:": Keys.tasks,
+        "122131242455657632537845365334212423214234234`123": Keys.name,
     }
