@@ -26,6 +26,9 @@ class Keys:
     tasks = "Tasks"
     name = "Name"
     link = "Link"
+    chair = 'Chair'
+    spectre = "Spectre"
+    specialization = "Specialization"
 
 class IasaMMSA:
     thread = 15
@@ -48,6 +51,7 @@ class IasaSP:
     link_start = 'https://cad.kpi.ua/about-us/teachers/'
     link_download_xls = 'http://cad.kpi.ua/wp-content/uploads/2022/01/расп2сем1-5курс21-22СП.xls'
     sep = 'ghrfbnikjfghdjubikvxtrcsfeslkrdaijuwzhXC:Ogfhdyzrcjukvx ehgjkybudfzxcrl'
+    specialization = 'Інтелектуальні сервiс-орiєнтованi розподілені обчислювання'
     disp_theory, disp_practice = "Викладає дисципліни:", "Проводить лабораторно-практичні заняття з дисциплін:"
     list_ul = [disp_theory, disp_practice]
     rechange_keys = {
@@ -66,3 +70,8 @@ class IasaSP:
         "122131242455657632537845365334212423214234234`123": Keys.name,
         "rtghfyyjtruhgfbnngbmtuhjfky iukgtyihjmnhyuitgkjlmn,o": Keys.link,
     }
+
+class IasaAdditional:
+    df_name_specialization = 'teachers_specialization.csv'
+    df_name_subject = 'teachers_subject.csv'
+    df_name_spectre = 'teachers_spectre.csv'

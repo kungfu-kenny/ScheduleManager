@@ -36,7 +36,7 @@ class DataTeacherMmsa(ParseTeachers):
             value_subjects = [v.find_all('td') for v in value_subjects]
             value_subjects = [v for v in value_subjects if v]
             value_subjects = [[k.text.replace('\n', '').strip() for k in v] for v in value_subjects]
-            return '|'.join(f"{subject[1]}({subject[0]})" for subject in value_subjects)
+            return '|'.join(f"{subject[1]}[{subject[0]}]" for subject in value_subjects)
         return ''
 
     def configure_scientific_directions(self, value_parsed:element.Tag) -> list:
@@ -53,7 +53,7 @@ class DataTeacherMmsa(ParseTeachers):
             value_scientific_directions = [v.find_all('td') for v in value_scientific_directions]
             value_scientific_directions = [v for v in value_scientific_directions if v]
             value_scientific_directions = [[k.text.replace('\n', '').strip() for k in v] for v in value_scientific_directions]
-            return '|'.join(f"{subject[1]}({subject[0]})" for subject in value_scientific_directions)
+            return '|'.join(f"{subject[1]}[{subject[0]}]" for subject in value_scientific_directions)
         return ''
 
     def configure_publications_info(self, value_parsed:element.Tag) -> list:
@@ -84,7 +84,7 @@ class DataTeacherMmsa(ParseTeachers):
             value_subjects = [
                 [k.text.replace('\n', '').strip() for k in v] for v in [v for v in value_subjects if v]
             ]
-            return '|'.join(f"{subject[1]}({subject[0]})" for subject in value_subjects)
+            return '|'.join(f"{subject[1]}[{subject[0]}]" for subject in value_subjects)
         return ''
 
     @staticmethod
