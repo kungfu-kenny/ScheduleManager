@@ -1,4 +1,4 @@
-import os
+import os, sys
 from parsers.parse_teacher_sp import DataTeacherSp
 from parsers.parse_teacher_mmsa import DataTeacherMmsa
 from utilities.develop_csv import DevelopAdditionalCSV
@@ -16,6 +16,7 @@ try:
         a.start_parse()
 
 except Exception as e:
-    #TODO add here the exception workers
-    print(e)
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    print(exc_type, fname, exc_tb.tb_lineno)
     print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')

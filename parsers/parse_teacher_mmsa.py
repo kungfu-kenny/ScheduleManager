@@ -152,10 +152,10 @@ class DataTeacherMmsa(ParseTeachers):
                     Keys.accolodates_scientific: self.configure_status(value_parsed_info),
                     Keys.accolodates_academic: self.configure_accolodates(value_parsed_info),
                     Keys.tasks: self.configure_work_position(value_parsed_info),
-                    Keys.disciplines_theory: self.configure_subjects_lections(soup),
+                    Keys.subject_theory: self.configure_subjects_lections(soup),
                     Keys.science_spectre: self.configure_scientific_directions(soup),
                     Keys.publications: self.configure_publications_info(soup),
-                    Keys.disciplines_practice: self.configure_subjects_practice(soup),
+                    Keys.subject_practice: self.configure_subjects_practice(soup),
                 }
             )
         return value_return

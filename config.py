@@ -13,6 +13,10 @@ class Folders:
 
 class Keys:
     id = 'ID'
+    id_spectre = 'ID_spectre'
+    id_teacher = 'ID_teacher'
+    id_subject = 'ID_subject'
+    id_spec = 'ID_specialization'
     birthplace = "Birthplace"
     birthdate = "Birthdate"
     education = "Education"
@@ -20,8 +24,8 @@ class Keys:
     accolodates_academic = "Accolodates Academic"
     accolodates_honor = "Accolodates Honor"
     year = "Year Working"
-    disciplines_theory = "Disciplines Theory"
-    disciplines_practice = "Disciplines Practice"
+    subject_theory = "Subject Theory"
+    subject_practice = "Subject Practice"
     science_spectre = "Science Spectre"
     publications = "Publications"
     tasks = "Tasks"
@@ -29,6 +33,7 @@ class Keys:
     link = "Link"
     chair = 'Chair'
     spectre = "Spectre"
+    subject = 'Subject'
     specialization = "Specialization"
 
 class IasaMMSA:
@@ -41,10 +46,10 @@ class IasaMMSA:
         Keys.accolodates_scientific,
         Keys.accolodates_academic,
         Keys.tasks,
-        Keys.disciplines_theory,
+        Keys.subject_theory,
         Keys.science_spectre,
         Keys.publications,
-        Keys.disciplines_practice,
+        Keys.subject_practice,
     ] 
 
 class IasaSP:
@@ -63,8 +68,8 @@ class IasaSP:
         "Академічні звання:": Keys.accolodates_academic,
         "Почесні звання:": Keys.accolodates_honor,
         "Рік з якого працює на кафедрі СП:": Keys.year,
-        disp_theory: Keys.disciplines_theory,
-        disp_practice: Keys.disciplines_practice,
+        disp_theory: Keys.subject_theory,
+        disp_practice: Keys.subject_practice,
         "Галузь наукової діяльності:": Keys.science_spectre,
         "Загальна кількість публікацій:": Keys.publications,
         "Задачі та напрямки діяльності:": Keys.tasks,
@@ -76,3 +81,7 @@ class IasaAdditional:
     df_name_specialization = 'teachers_specialization.csv'
     df_name_subject = 'teachers_subject.csv'
     df_name_spectre = 'teachers_spectre.csv'
+    df_name_teacher = 'teachers_all.csv'
+    df_name_teacher_subject = 'teachers_foreign_subject.csv'
+    df_name_teacher_spectre = 'teachers_foreign_spectre.csv'
+    df_name_teacher_specialization = 'teachers_foreign_specialization.csv'

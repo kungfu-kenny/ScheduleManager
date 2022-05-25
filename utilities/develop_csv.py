@@ -19,6 +19,7 @@ class DevelopAdditionalCSV:
     def __init__(self) -> None:
         self.path_sp = os.path.join(Folders.folder_storage, IasaSP.df_name)
         self.path_mmsa = os.path.join(Folders.folder_storage, IasaMMSA.df_name)
+        self.path_all = os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher)
 
     @staticmethod
     def check_presence(path:str) -> bool:
@@ -63,7 +64,7 @@ class DevelopAdditionalCSV:
             return
         df = pd.read_csv(self.path_mmsa)
         value_spec = []
-        for k in [Keys.disciplines_theory, Keys.disciplines_practice, Keys.science_spectre]:
+        for k in [Keys.subject_theory, Keys.subject_practice, Keys.science_spectre]:
             value_spec.extend(df[k].unique())
         chairs, specs = ['SP'], [IasaSP.specialization]
         for m in value_spec:
@@ -77,6 +78,7 @@ class DevelopAdditionalCSV:
         self.save(
             pd.DataFrame(
                 {
+                    Keys.id: [i for i in range(1, len(specs) + 1)],
                     Keys.specialization: specs,
                     Keys.chair: chairs
                 }
@@ -97,7 +99,7 @@ class DevelopAdditionalCSV:
         for name, chair in zip([self.path_sp, self.path_mmsa], ['SP', 'MMSA']):
             df = pd.read_csv(name)
             value_subjects = []
-            for k in [Keys.disciplines_theory, Keys.disciplines_practice]:
+            for k in [Keys.subject_theory, Keys.subject_practice]:
                 value_subjects.extend(df[k].unique())
             for f in value_subjects:
                 if not isinstance(f, str):
@@ -109,7 +111,8 @@ class DevelopAdditionalCSV:
         self.save(
             pd.DataFrame(
                 {
-                    Keys.spectre: subjects,
+                    Keys.id: [i for i in range(1, len(subjects) + 1)],
+                    Keys.subject: subjects,
                 }
             ),
             path
@@ -139,6 +142,7 @@ class DevelopAdditionalCSV:
         self.save(
             pd.DataFrame(
                 {
+                    Keys.id: [i for i in range(1, len(spectres) + 1)],
                     Keys.spectre: spectres
                 }
             ),
@@ -151,18 +155,150 @@ class DevelopAdditionalCSV:
         Input:  None
         Output: we created csv for the further df
         """
-        #TODO continue from here
-        pass
+        if self.check_presence(self.path_all):
+            return
+        df_sp = pd.read_csv(self.path_sp)
+        df_mmsa = pd.read_csv(self.path_mmsa)
+        df_sp[Keys.chair] = 'SP'
+        df_mmsa[Keys.chair] = 'MMSA'
+        df_teachers = pd.concat(
+            [
+                df_sp,
+                df_mmsa,
+            ]
+        )
 
-    def parse_database(self) -> None:
+        df_teachers[Keys.id] = [i for i in range(1, df_teachers.shape[0]+1)]
+        df_teachers = df_teachers.fillna(' ')
+        self.save(
+            df_teachers,
+            self.path_all
+        )
+
+    def parse_database_subject(self) -> None:
         """
-        Method which is dedicated to create csv values for the database values
-        and use them after to the database usage
+        Method which is dedicated to develop dataframes of the subjects
         Input:  None
-        Output: we created to df for the comfortable parsings
+        Output: dataframe with selected id values
         """
-        #TODO continue from here
-        pass
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_subject)
+        if self.check_presence(path):
+            return
+        df_used = pd.read_csv(
+            os.path.join(
+                Folders.folder_storage, 
+                IasaAdditional.df_name_subject
+            )
+        )
+        id_subject = df_used[[Keys.id, Keys.subject]].values.tolist()
+        df_used = pd.read_csv(self.path_all)
+        id_used = df_used[
+            [
+                Keys.id, 
+                Keys.subject_theory, 
+                Keys.subject_practice
+            ]
+        ].values.tolist()
+        teachers, subjects = [], []
+        for id_teacher, theory, practice in id_used:
+            for id_sub, subject in id_subject:
+                if any(subject in f for f in [theory, practice]):
+                    teachers.append(id_teacher)
+                    subjects.append(id_sub)
+        self.save(
+            pd.DataFrame(
+                {
+                    Keys.id_teacher: teachers,
+                    Keys.id_subject: subjects,
+                }
+            ),
+            path
+        )
+
+    def parse_database_spectre(self) -> None:
+        """
+        Method which is dedicated to develop dataframes of the spectre
+        Input:  None
+        Output: dataframe with the selected id values
+        """
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_spectre)
+        if self.check_presence(path):
+            return
+        df_used = pd.read_csv(
+            os.path.join(
+                Folders.folder_storage, 
+                IasaAdditional.df_name_spectre
+            )
+        )
+        id_spectre = df_used[[Keys.id, Keys.spectre]].values.tolist()
+        df_used = pd.read_csv(self.path_all)
+        id_used = df_used[[Keys.id, Keys.science_spectre]].values.tolist()
+        teachers, spectres = [], []
+        for id, spectre in id_used:
+            for id_s, spectre_possible in id_spectre:
+                if spectre_possible in spectre:
+                    teachers.append(id)
+                    spectres.append(id_s)
+
+        self.save(
+            pd.DataFrame(
+                {
+                    Keys.id_teacher: teachers,
+                    Keys.id_spectre: spectres,
+                }
+            ),
+            path
+        )
+
+    def parse_database_specialization(self) -> None:
+        """
+        Method which is dedicated to develop datafranes
+        Input:  None
+        Output: dataframe with the selected id values
+        """
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_specialization)
+        if self.check_presence(path):
+            return
+        df_used = pd.read_csv(
+            os.path.join(
+                Folders.folder_storage, 
+                IasaAdditional.df_name_specialization
+            )
+        )
+        id_specialization = df_used[[Keys.id, Keys.specialization]].values.tolist()
+        df_used = pd.read_csv(self.path_all)
+        id_used = df_used[
+            [
+                Keys.id, 
+                Keys.chair, 
+                Keys.subject_theory, 
+                Keys.subject_practice, 
+                Keys.science_spectre
+            ]
+        ].values.tolist()
+        
+        teacher, specialization = [], []
+        i = id_specialization[[f[1] for f in id_specialization].index(IasaSP.specialization)][0]
+        
+        for id_teacher, chair, theory, practice, spectre in id_used:
+            if chair == 'SP':
+                teacher.append(id_teacher)
+                specialization.append(i)
+            else:
+                for id_spec, spec in id_specialization:
+                    if any(spec in f for f in [theory, practice, spectre]):
+                        teacher.append(id_teacher)
+                        specialization.append(id_spec)
+        
+        self.save(
+            pd.DataFrame(
+                {
+                    Keys.id_teacher: teacher,
+                    Keys.id_spec: specialization,
+                }
+            ),
+            path
+        )
 
     def start_parse(self) -> None:
         """
@@ -176,7 +312,11 @@ class DevelopAdditionalCSV:
             ).issubset(os.listdir(Folders.folder_storage))
         )
         
+        self.parse_workers()
         self.parse_spectre()
         self.parse_subjects()
         self.parse_specialization()
         
+        self.parse_database_spectre()
+        self.parse_database_subject()
+        self.parse_database_specialization()
