@@ -12,6 +12,7 @@ class Folders:
     )
 
 class Keys:
+    id = 'ID'
     birthplace = "Birthplace"
     birthdate = "Birthdate"
     education = "Education"

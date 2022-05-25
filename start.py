@@ -16,5 +16,6 @@ try:
         a.start_parse()
 
 except Exception as e:
+    #TODO add here the exception workers
     print(e)
     print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')

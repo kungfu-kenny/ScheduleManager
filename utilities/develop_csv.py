@@ -145,6 +145,15 @@ class DevelopAdditionalCSV:
             path
         )
 
+    def parse_workers(self) -> None:
+        """
+        Method which is dedicated to develop addtional csv for the creating merged values
+        Input:  None
+        Output: we created csv for the further df
+        """
+        #TODO continue from here
+        pass
+
     def parse_database(self) -> None:
         """
         Method which is dedicated to create csv values for the database values
@@ -152,6 +161,7 @@ class DevelopAdditionalCSV:
         Input:  None
         Output: we created to df for the comfortable parsings
         """
+        #TODO continue from here
         pass
 
     def start_parse(self) -> None:
