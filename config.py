@@ -13,6 +13,8 @@ class Folders:
 
 class Keys:
     id = 'ID'
+    #TODO continue work from here
+    id_chair = 'ID_chair'
     id_spectre = 'ID_spectre'
     id_teacher = 'ID_teacher'
     id_subject = 'ID_subject'
@@ -35,6 +37,24 @@ class Keys:
     spectre = "Spectre"
     subject = 'Subject'
     specialization = "Specialization"
+
+#TODO continue work from here
+class IasaFaculty:
+    abbreviation = 'ІПСА'
+    name = 'Інститут Прикладного Системного Аналізу'
+    name_sp, name_mmsa = 'SP', 'MMSA'
+    dict_name = {
+        name_sp: "СП",
+        name_mmsa: "ММСА",
+    }
+    dict_id = {
+        name_sp: 1,
+        name_mmsa: 2,
+    }
+    dict_df = {
+        Keys.id: [1, 2],
+        Keys.chair:[name_sp, name_mmsa]
+    }
 
 class IasaMMSA:
     thread = 15
