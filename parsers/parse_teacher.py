@@ -3,6 +3,7 @@ import asyncio
 import aiohttp
 import requests
 import pandas as pd
+from bs4 import element
 from config import (
     IasaMMSA, 
     IasaSchedule,
@@ -15,6 +16,15 @@ class ParseTeachers:
     """
     def __init__(self) -> None:
         pass
+
+    @staticmethod
+    def get_text(soup:element) -> str:
+        """
+        Method which is dedicated to get text values
+        Input:  soup = element of the bs4 which was found
+        Output: it's text
+        """
+        return soup.text if soup else ''
 
     @staticmethod
     def develop_csv(df:pd.DataFrame, df_path:str) -> None:

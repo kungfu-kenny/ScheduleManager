@@ -64,8 +64,28 @@ class DataTeacherSchedule(ParseTeachers):
         
         for html in list_html:
             soup = BeautifulSoup(html, 'html.parser')
-            # print(soup)
-            # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+            header_first = self.get_text(
+                soup.find(
+                    'span', 
+                    {"id":"ctl00_MainContent_lblFirstTable"}
+                )
+            )
+            header_second = self.get_text(
+                soup.find(
+                    'span', 
+                    {'id': 'ctl00_MainContent_lblSecondTable'}
+                )
+            )
+            
+            table_first = soup.find(
+                'table',
+                {"id":"ctl00_MainContent_FirstScheduleTable"}
+            )
+            
+            table_second = soup.find(
+                'table',
+                {"id":"ctl00_MainContent_SecondScheduleTable"}
+            )
 
 
     def start_parse(self) -> None:
