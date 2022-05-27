@@ -8,6 +8,7 @@ from config import (
     Keys,
     IasaSP,
     IasaMMSA,
+    IasaFaculty,
     IasaAdditional,
 )
 
@@ -53,6 +54,47 @@ class DevelopAdditionalCSV:
         """
         df.to_csv(path, index=False)
 
+    def parse_faculty_chair(self) -> None:
+        """
+        Method which is dedicated to create additional values
+        Input:  None
+        Output: we created
+        """
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_faculty)
+        if self.check_presence(path):
+            return
+        self.save(
+            pd.DataFrame(
+                {
+                    Keys.id: [1],
+                    Keys.name: [IasaFaculty.name],
+                    Keys.abbreviation: [IasaFaculty.abbreviation],
+                }
+            ),
+                path
+        )
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_chair)
+        if self.check_presence(path):
+            return
+        self.save(
+            pd.DataFrame(
+                IasaFaculty.dict_df
+            ),
+            path
+        )
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_faculty_chair)
+        if self.check_presence(path):
+            return
+        self.save(
+            pd.DataFrame(
+                {
+                    Keys.id_faculty : IasaFaculty.dict_df.get(Keys.id),
+                    Keys.id_chair: [1 for _ in IasaFaculty.dict_df.get(Keys.id)],
+                }
+            ),
+            path
+        )
+
     def parse_specialization(self) -> None:
         """
         Method which is dedicated to created csv table of the specialization
@@ -66,7 +108,7 @@ class DevelopAdditionalCSV:
         value_spec = []
         for k in [Keys.subject_theory, Keys.subject_practice, Keys.science_spectre]:
             value_spec.extend(df[k].unique())
-        chairs, specs = ['SP'], [IasaSP.specialization]
+        chairs, specs = [IasaFaculty.dict_id['SP']], [IasaSP.specialization]
         for m in value_spec:
             if not isinstance(m, str):
                 continue
@@ -74,13 +116,13 @@ class DevelopAdditionalCSV:
                 req = re.search(r'\[(.*?)\]', f).group(1)
                 if req not in specs:
                     specs.append(req)
-                    chairs.append('MMSA')
+                    chairs.append(IasaFaculty.dict_id['MMSA'])
         self.save(
             pd.DataFrame(
                 {
                     Keys.id: [i for i in range(1, len(specs) + 1)],
                     Keys.specialization: specs,
-                    Keys.chair: chairs
+                    Keys.id_chair: chairs
                 }
             ),
             path
@@ -159,8 +201,8 @@ class DevelopAdditionalCSV:
             return
         df_sp = pd.read_csv(self.path_sp)
         df_mmsa = pd.read_csv(self.path_mmsa)
-        df_sp[Keys.chair] = 'SP'
-        df_mmsa[Keys.chair] = 'MMSA'
+        df_sp[Keys.id_chair] = IasaFaculty.dict_id['SP']
+        df_mmsa[Keys.id_chair] = IasaFaculty.dict_id['MMSA']
         df_teachers = pd.concat(
             [
                 df_sp,
@@ -169,6 +211,7 @@ class DevelopAdditionalCSV:
         )
 
         df_teachers[Keys.id] = [i for i in range(1, df_teachers.shape[0]+1)]
+        df_teachers[Keys.id_faculty] = 1
         df_teachers = df_teachers.fillna(' ')
         self.save(
             df_teachers,
@@ -270,7 +313,7 @@ class DevelopAdditionalCSV:
         id_used = df_used[
             [
                 Keys.id, 
-                Keys.chair, 
+                Keys.id_chair, 
                 Keys.subject_theory, 
                 Keys.subject_practice, 
                 Keys.science_spectre
@@ -281,7 +324,7 @@ class DevelopAdditionalCSV:
         i = id_specialization[[f[1] for f in id_specialization].index(IasaSP.specialization)][0]
         
         for id_teacher, chair, theory, practice, spectre in id_used:
-            if chair == 'SP':
+            if chair == IasaFaculty.dict_id['SP']:
                 teacher.append(id_teacher)
                 specialization.append(i)
             else:
@@ -312,6 +355,7 @@ class DevelopAdditionalCSV:
             ).issubset(os.listdir(Folders.folder_storage))
         )
         
+        self.parse_faculty_chair()
         self.parse_workers()
         self.parse_spectre()
         self.parse_subjects()

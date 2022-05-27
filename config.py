@@ -13,8 +13,8 @@ class Folders:
 
 class Keys:
     id = 'ID'
-    #TODO continue work from here
     id_chair = 'ID_chair'
+    id_faculty = 'ID_faculty'
     id_spectre = 'ID_spectre'
     id_teacher = 'ID_teacher'
     id_subject = 'ID_subject'
@@ -36,9 +36,9 @@ class Keys:
     chair = 'Chair'
     spectre = "Spectre"
     subject = 'Subject'
+    abbreviation = 'Abbreviation'
     specialization = "Specialization"
 
-#TODO continue work from here
 class IasaFaculty:
     abbreviation = 'ІПСА'
     name = 'Інститут Прикладного Системного Аналізу'
@@ -53,7 +53,8 @@ class IasaFaculty:
     }
     dict_df = {
         Keys.id: [1, 2],
-        Keys.chair:[name_sp, name_mmsa]
+        Keys.name: ["Системне Проєктування", "Математичні Методи Системного Аналізу"],
+        Keys.abbreviation:["СП", "ММСА"]
     }
 
 class IasaMMSA:
@@ -98,10 +99,14 @@ class IasaSP:
     }
 
 class IasaAdditional:
+    df_name_chair = "teachers_chair.csv"
+    df_name_faculty = 'teachers_faculty.csv'
     df_name_specialization = 'teachers_specialization.csv'
     df_name_subject = 'teachers_subject.csv'
     df_name_spectre = 'teachers_spectre.csv'
+    df_name_schedule = 'teachers_schedule.csv'
     df_name_teacher = 'teachers_all.csv'
     df_name_teacher_subject = 'teachers_foreign_subject.csv'
     df_name_teacher_spectre = 'teachers_foreign_spectre.csv'
     df_name_teacher_specialization = 'teachers_foreign_specialization.csv'
+    df_name_faculty_chair = 'teachers_foreign_faculty_chair.csv'

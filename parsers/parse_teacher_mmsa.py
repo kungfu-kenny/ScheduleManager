@@ -1,7 +1,6 @@
 import os
 import asyncio
 import pandas as pd
-from pprint import pprint
 from bs4 import BeautifulSoup, element
 from parsers.parse_teacher import ParseTeachers
 from config import (
