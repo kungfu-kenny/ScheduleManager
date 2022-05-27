@@ -3,7 +3,10 @@ import asyncio
 import aiohttp
 import requests
 import pandas as pd
-from config import IasaMMSA
+from config import (
+    IasaMMSA, 
+    IasaSchedule,
+)
 
 
 class ParseTeachers:
@@ -75,6 +78,57 @@ class ParseTeachers:
             if resp.status == 200:
                 return await resp.text()
         return ''
+
+    @staticmethod
+    async def get_html_async_redirect(value_link:str, session:object, data:dict={}) -> str:
+        """
+        Async static method which is dedicated to get html values from the post
+        Input:  value_link = link to get the selected values
+                session = aiohttp session to create
+                data = data which is dedicated to return 
+        Output: we developed the string values from the
+        """
+        async with session.post(value_link, data=data, ssl=False) as resp:
+            if resp.status == 200:
+                return await resp.text()
+        return ''
+
+    @staticmethod
+    def get_header_schedule(name:str) -> dict:
+        """
+        Static method whic is dedicated to get header schedule
+        Input:  name = name of the selected teacher
+        Output: dictionary to get values
+        """
+        header = {IasaSchedule.key_name: name}
+        header.update(IasaSchedule.data)
+        return header
+
+    async def get_html_all_schedule(self, value_names:list) -> list:
+        """
+        Async method which is dedicated to get the schedule values from it
+        Input:  value_names = list of the selected name values
+        Output: we developed the schedule html values
+        """
+        semaphore = asyncio.Semaphore(IasaMMSA.thread)
+        res = []
+        async with semaphore:
+            async with aiohttp.ClientSession(trust_env=True) as session:
+                for names in self.make_sublists(value_names):
+                    tasks = [
+                        asyncio.create_task(
+                            self.get_html_async_redirect(
+                                IasaSchedule.link, 
+                                session,
+                                self.get_header_schedule(name)
+                            )
+                        )
+                        for name in names
+                    ]
+                    res.extend(
+                        await asyncio.gather(*tasks)
+                    )
+        return res
 
     async def get_html_all(self, value_links:list) -> list:
         """

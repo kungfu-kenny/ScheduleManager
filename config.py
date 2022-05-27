@@ -98,6 +98,28 @@ class IasaSP:
         "rtghfyyjtruhgfbnngbmtuhjfky iukgtyihjmnhyuitgkjlmn,o": Keys.link,
     }
 
+class IasaSchedule:
+    link = 'http://rozklad.kpi.ua/Schedules/LecturerSelection.aspx'
+    key_name = "ctl00$MainContent$txtboxLecturer"
+    data = {
+        "ctl00_ToolkitScriptManager_HiddenField": "",
+        "__EVENTTARGET": "",
+        "__EVENTARGUMENT":	"",
+        "ctl00$MainContent$btnSchedule": "Розклад занять",
+        "hiddenInputToUpdateATBuffer_CommonToolkitScripts":	"1",
+        "__VIEWSTATE":	"/wEMDAwQAgAADgEMBQAMEAIAAA4BDAUDDBACAAAOAgwFCwwQAgw"\
+            "PAgEIQ3NzQ2xhc3MBD2J0biBidG4tcHJpbWFyeQEEXyFTQgUCAAAADAUNDBACAAAOA"\
+            "QwFAwwQAgwADwEBB29uZm9jdXMBHXRoaXMudmFsdWU9Jyc7dGhpcy5vbmZvY3VzPScn"\
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"\
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"\
+            "AAAAAAAAAAAAAAAAAAAAAJkWCFbMSgxOXJsGpLI9ZU2imYY",
+        "__EVENTVALIDATION": "/wEdAAEAAAD/////AQAAAAAAAAAPAQAAAAUAAAAIsA3rWl3AM+6E94I53LbWK4YqVqwL"\
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"\
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"\
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"\
+            "AAAAAACvHV09VRintN+nMH+p4yerPBpN+",
+    }
+
 class IasaAdditional:
     df_name_chair = "teachers_chair.csv"
     df_name_faculty = 'teachers_faculty.csv'

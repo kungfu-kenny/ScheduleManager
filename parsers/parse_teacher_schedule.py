@@ -1,19 +1,22 @@
-import imp
 import os
 import asyncio
-import requests
+from pprint import pprint
 import pandas as pd
 from bs4 import BeautifulSoup, element
 from parsers.parse_teacher import ParseTeachers
+from utilities.develop_csv import DevelopAdditionalCSV
 from config import (
+    Keys,
     Folders,
+    IasaSP,
+    IasaMMSA,
     IasaAdditional,
 )
 
 
 class DataTeacherSchedule(ParseTeachers):
     """
-    class which is dedicated to parse selected schedule
+    class which is dedicated to parse selected teacher's schedule
     """
     def __init__(self) -> None:
         super(DataTeacherSchedule, self).__init__()
@@ -22,29 +25,49 @@ class DataTeacherSchedule(ParseTeachers):
             IasaAdditional.df_name_schedule
         )
 
+    @staticmethod
+    def check_additional() -> None:
+        """
+        Static method which is dedicated to additionally checked the previous data
+        Input:  None
+        Output: we created the previous values in this cases
+        """
+        additional_csv = DevelopAdditionalCSV()
+        additional_csv.check_additional(
+            set(
+                [IasaSP.df_name, IasaMMSA.df_name]
+            ).issubset(os.listdir(Folders.folder_storage))
+        )
+        additional_csv.parse_workers()
+
     def start_parse_html(self) -> list:
         """
-        Method which is dedicated to develop the getting the 
+        Method which is dedicated to develop the getting the values of the html selected values
+        Input:  None
+        Output: we created list of the parsed html values
         """
-        k = requests.post(
-            'http://rozklad.kpi.ua/Schedules/LecturerSelection.aspx',
-            json={
-                "ctl00_ToolkitScriptManager_HiddenField":"",
-                "__VIEWSTATE":"/wEMDAwQAgAADgEMBQAMEAIAAA4BDAUDDBACAAAOAgwFCwwQAgwPAgEIQ3NzQ2xhc3MBD2J0biBidG4tcHJpbWFyeQEEXyFTQgUCAAAADAUNDBACAAAOAQwFAwwQAgwADwEBB29uZm9jdXMBHXRoaXMudmFsdWU9Jyc7dGhpcy5vbmZvY3VzPScnAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJkWCFbMSgxOXJsGpLI9ZU2imYY",
-                "__EVENTTARGET":"",
-                "__EVENTARGUMENT":"",
-                "ctl00$MainContent$txtboxLecturer":"Петренко+Анатолій+Іванович",
-                "ctl00$MainContent$btnSchedule":"Розклад+занять",
-                "__EVENTVALIDATION":"/wEdAAEAAAD/////AQAAAAAAAAAPAQAAAAUAAAAIsA3rWl3AM+6E94I53LbWK4YqVqwLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACvHV09VRintN+nMH+p4yerPBpN+",
-                "hiddenInputToUpdateATBuffer_CommonToolkitScripts":"0"
-            }
+        value_name = pd.read_csv(
+            os.path.join(
+                Folders.folder_storage, 
+                IasaAdditional.df_name_teacher
+            )
         )
-        # print(k.status_code)
-        # print('__________________________________________')
-        # print(k.headers)
-        # print('ccccccccccccccccccccccccccccccccccccccccccc')
-        # print(k.text)
-    
+        #TODO check the values of the length
+        value_name = value_name[Keys.name].to_list()[:1]
+        
+        loop = asyncio.get_event_loop()
+        list_html = loop.run_until_complete(
+            self.get_html_all_schedule(
+                value_name
+            )
+        )
+        
+        for html in list_html:
+            soup = BeautifulSoup(html, 'html.parser')
+            # print(soup)
+            # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+
+
     def start_parse(self) -> None:
         """
         Method which is dedicated to develop the parse all values of it
@@ -53,4 +76,5 @@ class DataTeacherSchedule(ParseTeachers):
         """
         if self.get_check_development(self.file_csv):
             return
+        self.check_additional()
         prev = self.start_parse_html()
