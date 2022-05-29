@@ -1,4 +1,3 @@
-from email.policy import default
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import (create_engine,

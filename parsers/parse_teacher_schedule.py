@@ -52,7 +52,7 @@ class DataTeacherSchedule(ParseTeachers):
         days = days[0] if len(days) > 0 else []
         days = [f.text for f in days.find_all('td')]
         return {
-            day: days.index(day) - 1
+            day: days.index(day)
             for day in days
             if day
         }
@@ -72,7 +72,7 @@ class DataTeacherSchedule(ParseTeachers):
             f.find('td').get_text(strip=True, separator='\n').splitlines() for f in times
         ]
         return {
-            time: i 
+            time: i + 1
             for i, (_, time) in enumerate(times)
         }
 
@@ -98,7 +98,7 @@ class DataTeacherSchedule(ParseTeachers):
                 if subject and len(subject) == 4:
                     name, person, lec_type, groups = subject
                     groups = groups.split(', ')
-                if subject and len(subject) == 3:
+                elif subject and len(subject) == 3:
                     name, person, groups = subject
                     lec_type = ''
                     groups = groups.split(', ')
@@ -116,28 +116,35 @@ class DataTeacherSchedule(ParseTeachers):
         return value_return
 
     @staticmethod
-    def parse_table_all(days:dict, times:dict, subjects:dict, name:str) -> dict:
+    def parse_table_all(days:dict, times:dict, subjects:dict, name:str, header:str) -> list:
         """
         Static method which is dedicated to develop values of the all values
         Input:  days = dictionary of the selected days
                 times = dict of the time values
                 subjects = list of the subject values 
                 name = string of the selected name
-        Output: dictionary with the selected values
+                header = week quarter
+        Output: list with the selected values
         """
-        value_ret = {}
-        for subject, day in zip(subjects, days.keys()):
-            value_ret.update({
-                day: [
-                    {t: sub}
-                    for t, sub in zip(times.keys(), subject)
-                ]
-                }
-            )
-        return {
-            name: value_ret
-        }
-
+        value_ret = []
+        for subject, day in zip(
+            subjects, 
+            {k: v for k, v in sorted(days.items(), key=lambda item: item[1])}.keys()
+        ):
+            for sub, (t, c) in zip(
+                subject,
+                {k: v for k, v in sorted(times.items(), key=lambda item: item[1])}.items()
+                ):
+                sub.update({
+                    "Name Teacher Searched": name,
+                    "Time Begin": t,
+                    "Number Count": c,
+                    "Day Begin": day,
+                    "Week Number": header,
+                })
+                value_ret.append(sub)
+        return value_ret
+    
     def start_parse_html(self) -> list:
         """
         Method which is dedicated to develop the getting the values of the html selected values
@@ -150,8 +157,7 @@ class DataTeacherSchedule(ParseTeachers):
                 IasaAdditional.df_name_teacher
             )
         )
-        #TODO check the values of the length
-        value_name = value_name[Keys.name].to_list()[:]
+        value_name = value_name[Keys.name].to_list()#[:]
         
         loop = asyncio.get_event_loop()
         list_html = loop.run_until_complete(
@@ -160,7 +166,7 @@ class DataTeacherSchedule(ParseTeachers):
             )
         )
         
-        value_result = {}
+        value_result = []
         for name, html in zip(value_name, list_html):
             soup = BeautifulSoup(html, 'html.parser')
             header_first = self.get_text(
@@ -192,7 +198,8 @@ class DataTeacherSchedule(ParseTeachers):
                 dict_days_first,
                 dict_numbers_first, 
                 list_schedule_first,
-                name
+                name,
+                header_first
             )
             
             dict_days_second = self.parse_table_days(table_second)
@@ -202,18 +209,12 @@ class DataTeacherSchedule(ParseTeachers):
                 dict_days_second,
                 dict_numbers_second, 
                 list_schedule_second,
-                name
+                name,
+                header_second
             )
 
-            if not value_result.get(header_first):
-                value_result.update({header_first: [dict_schedule_first]})
-            else:
-                value_result[header_first].append(dict_schedule_first)
-            
-            if not value_result.get(header_second):
-                value_result.update({header_second: [dict_schedule_second]})
-            else:
-                value_result[header_second].append(dict_schedule_second)
+            value_result.extend(dict_schedule_first)
+            value_result.extend(dict_schedule_second)
 
         return value_result
 
