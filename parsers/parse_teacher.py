@@ -1,4 +1,5 @@
 import os
+import json
 import asyncio
 import aiohttp
 import requests
@@ -25,6 +26,23 @@ class ParseTeachers:
         Output: it's text
         """
         return soup.text if soup else ''
+
+    def save_json(self, value_dict:dict, value_path:str, value_bool:bool=False) -> None:
+        """
+        Static method which is dedicated to develop basic json values
+        Input:  value_dict = dictionary which was previously parsed
+                value_path = path of the selected json
+                value_bool = boolean value which is dedicated to overwrite
+        Output: we saved json values to this values
+        """
+        if self.get_check_development(value_path) and not value_bool:
+            return
+        with open(value_path, 'w') as value_json_file:
+            json.dump(
+                value_dict, 
+                value_json_file, 
+                indent=4
+        )
 
     @staticmethod
     def develop_csv(df:pd.DataFrame, df_path:str) -> None:

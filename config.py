@@ -126,7 +126,7 @@ class IasaAdditional:
     df_name_specialization = 'teachers_specialization.csv'
     df_name_subject = 'teachers_subject.csv'
     df_name_spectre = 'teachers_spectre.csv'
-    df_name_schedule = 'teachers_schedule.csv'
+    df_name_schedule = 'teachers_schedule.json'
     df_name_teacher = 'teachers_all.csv'
     df_name_teacher_subject = 'teachers_foreign_subject.csv'
     df_name_teacher_spectre = 'teachers_foreign_spectre.csv'

@@ -1,6 +1,5 @@
 import os
 import asyncio
-from pprint import pprint
 import pandas as pd
 from bs4 import BeautifulSoup, element
 from parsers.parse_teacher import ParseTeachers
@@ -40,6 +39,105 @@ class DataTeacherSchedule(ParseTeachers):
         )
         additional_csv.parse_workers()
 
+    @staticmethod
+    def parse_table_days(table:element) -> dict:
+        """
+        Static method which is dedicated to created the
+        Input:  table = selected table values 
+        Output: dictionary which the selected values and the
+        """
+        if not table:
+            return {}
+        days = table.find_all('tr')
+        days = days[0] if len(days) > 0 else []
+        days = [f.text for f in days.find_all('td')]
+        return {
+            day: days.index(day) - 1
+            for day in days
+            if day
+        }
+
+    @staticmethod
+    def parse_table_time(table:element) -> dict:
+        """
+        Static method which is dedicated to parse time
+        Input:  table = selected table values
+        Output: disctionary of the selected values
+        """
+        if not table:
+            return {}
+        times = table.find_all('tr')
+        times = times[1:] if len(times) > 0 else []
+        times = [
+            f.find('td').get_text(strip=True, separator='\n').splitlines() for f in times
+        ]
+        return {
+            time: i 
+            for i, (_, time) in enumerate(times)
+        }
+
+    @staticmethod
+    def parse_table_subject(table:element) -> list:
+        """
+        Static method which is dedicated to parse table subject
+        Input:  table = table which was previously parsed
+        Output: we developed the subjects list of selected values
+        """
+        if not table:
+            return []
+        subjects = table.find_all('tr')
+        subjects = subjects[1:] if len(subjects) > 0 else []
+        subjects = [
+            [j.get_text(strip=True, separator='\n').splitlines() for j in f.find_all('td')[1:]]
+            for f in subjects
+        ]
+        value_return = []
+        for day in [*zip(*subjects)]:
+            ret = []
+            for subject in day:
+                if subject and len(subject) == 4:
+                    name, person, lec_type, groups = subject
+                    groups = groups.split(', ')
+                if subject and len(subject) == 3:
+                    name, person, groups = subject
+                    lec_type = ''
+                    groups = groups.split(', ')
+                else:
+                    name, person, lec_type, groups = '', '', '', []
+                ret.append(
+                    {
+                        "Name Subject Small": name,
+                        "Name Teacher": person,
+                        "Subject Type": lec_type,
+                        "Groups List": groups,
+                    }
+                )
+            value_return.append(ret)
+        return value_return
+
+    @staticmethod
+    def parse_table_all(days:dict, times:dict, subjects:dict, name:str) -> dict:
+        """
+        Static method which is dedicated to develop values of the all values
+        Input:  days = dictionary of the selected days
+                times = dict of the time values
+                subjects = list of the subject values 
+                name = string of the selected name
+        Output: dictionary with the selected values
+        """
+        value_ret = {}
+        for subject, day in zip(subjects, days.keys()):
+            value_ret.update({
+                day: [
+                    {t: sub}
+                    for t, sub in zip(times.keys(), subject)
+                ]
+                }
+            )
+        return {
+            name: value_ret
+        }
+
     def start_parse_html(self) -> list:
         """
         Method which is dedicated to develop the getting the values of the html selected values
@@ -53,7 +151,7 @@ class DataTeacherSchedule(ParseTeachers):
             )
         )
         #TODO check the values of the length
-        value_name = value_name[Keys.name].to_list()[:1]
+        value_name = value_name[Keys.name].to_list()[:]
         
         loop = asyncio.get_event_loop()
         list_html = loop.run_until_complete(
@@ -62,7 +160,8 @@ class DataTeacherSchedule(ParseTeachers):
             )
         )
         
-        for html in list_html:
+        value_result = {}
+        for name, html in zip(value_name, list_html):
             soup = BeautifulSoup(html, 'html.parser')
             header_first = self.get_text(
                 soup.find(
@@ -70,23 +169,53 @@ class DataTeacherSchedule(ParseTeachers):
                     {"id":"ctl00_MainContent_lblFirstTable"}
                 )
             )
+            table_first = soup.find(
+                'table',
+                {"id":"ctl00_MainContent_FirstScheduleTable"}
+            )
+            
             header_second = self.get_text(
                 soup.find(
                     'span', 
                     {'id': 'ctl00_MainContent_lblSecondTable'}
                 )
             )
-            
-            table_first = soup.find(
-                'table',
-                {"id":"ctl00_MainContent_FirstScheduleTable"}
-            )
-            
             table_second = soup.find(
                 'table',
                 {"id":"ctl00_MainContent_SecondScheduleTable"}
             )
 
+            dict_days_first = self.parse_table_days(table_first)
+            dict_numbers_first = self.parse_table_time(table_first)
+            list_schedule_first = self.parse_table_subject(table_first)
+            dict_schedule_first = self.parse_table_all(
+                dict_days_first,
+                dict_numbers_first, 
+                list_schedule_first,
+                name
+            )
+            
+            dict_days_second = self.parse_table_days(table_second)
+            dict_numbers_second = self.parse_table_time(table_second)
+            list_schedule_second = self.parse_table_subject(table_second)
+            dict_schedule_second = self.parse_table_all(
+                dict_days_second,
+                dict_numbers_second, 
+                list_schedule_second,
+                name
+            )
+
+            if not value_result.get(header_first):
+                value_result.update({header_first: [dict_schedule_first]})
+            else:
+                value_result[header_first].append(dict_schedule_first)
+            
+            if not value_result.get(header_second):
+                value_result.update({header_second: [dict_schedule_second]})
+            else:
+                value_result[header_second].append(dict_schedule_second)
+
+        return value_result
 
     def start_parse(self) -> None:
         """
@@ -97,4 +226,8 @@ class DataTeacherSchedule(ParseTeachers):
         if self.get_check_development(self.file_csv):
             return
         self.check_additional()
-        prev = self.start_parse_html()
+        dictionary_used = self.start_parse_html()
+        self.save_json(
+            dictionary_used,
+            self.file_csv
+        )
