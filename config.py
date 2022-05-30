@@ -22,13 +22,13 @@ class Keys:
     birthplace = "Birthplace"
     birthdate = "Birthdate"
     education = "Education"
-    accolodates_scientific = "Accolodates Scientific"
-    accolodates_academic = "Accolodates Academic"
-    accolodates_honor = "Accolodates Honor"
-    year = "Year Working"
-    subject_theory = "Subject Theory"
-    subject_practice = "Subject Practice"
-    science_spectre = "Science Spectre"
+    accolodates_scientific = "Accolodates_Scientific"
+    accolodates_academic = "Accolodates_Academic"
+    accolodates_honor = "Accolodates_Honor"
+    year = "Year_Working"
+    subject_theory = "Subject_Theory"
+    subject_practice = "Subject_Practice"
+    science_spectre = "Science_Spectre"
     publications = "Publications"
     tasks = "Tasks"
     name = "Name"
@@ -38,6 +38,15 @@ class Keys:
     subject = 'Subject'
     abbreviation = 'Abbreviation'
     specialization = "Specialization"
+    name_subject_small = "Name_Subject_Small"
+    name_teacher = 'Name_Teacher'
+    subject_type = "Subject_Type"
+    groups_list = "Groups_List"
+    name_teacher_searched = "Name_Teacher_Searched"
+    time_begin = "Time_Begin"
+    number_count = "Number_Count"
+    day_begin = "Day_Begin"
+    week_number = "Week_Number"
 
 class IasaFaculty:
     abbreviation = 'ІПСА'

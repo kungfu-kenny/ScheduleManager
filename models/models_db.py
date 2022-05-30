@@ -68,6 +68,15 @@ association_teacher_subject_specialization = Table(
     PrimaryKeyConstraint("id_teacher", "id_subject", "id_specialization"),
 )
 
+association_teacher_class_dedicated = Table(
+    "teacher_class_dedicated",
+    Base.metadata,
+    Column("id_teacher", ForeignKey('teacher.id')),
+    Column("id_class", ForeignKey('class.id')),
+    Column("id_building", ForeignKey('building.id')),
+    PrimaryKeyConstraint("id_teacher", "id_class", "id_building")
+)
+
 class Chair(Base):
     __tablename__ = 'chair'
     id = Column(Integer, primary_key=True)

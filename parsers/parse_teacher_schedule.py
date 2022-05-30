@@ -106,10 +106,10 @@ class DataTeacherSchedule(ParseTeachers):
                     name, person, lec_type, groups = '', '', '', []
                 ret.append(
                     {
-                        "Name Subject Small": name,
-                        "Name Teacher": person,
-                        "Subject Type": lec_type,
-                        "Groups List": groups,
+                        Keys.name_subject_small: name,
+                        Keys.name_teacher: person,
+                        Keys.subject_type: lec_type,
+                        Keys.groups_list: groups,
                     }
                 )
             value_return.append(ret)
@@ -136,11 +136,11 @@ class DataTeacherSchedule(ParseTeachers):
                 {k: v for k, v in sorted(times.items(), key=lambda item: item[1])}.items()
                 ):
                 sub.update({
-                    "Name Teacher Searched": name,
-                    "Time Begin": t,
-                    "Number Count": c,
-                    "Day Begin": day,
-                    "Week Number": header,
+                    Keys.name_teacher_searched: name,
+                    Keys.time_begin: t,
+                    Keys.number_count: c,
+                    Keys.day_begin: day,
+                    Keys.week_number: header,
                 })
                 value_ret.append(sub)
         return value_ret
