@@ -19,6 +19,9 @@ class Keys:
     id_teacher = 'ID_teacher'
     id_subject = 'ID_subject'
     id_spec = 'ID_specialization'
+    id_group = 'ID_group'
+    id_time = 'ID_time'
+    id_day = 'ID_day'
     birthplace = "Birthplace"
     birthdate = "Birthdate"
     education = "Education"
@@ -47,6 +50,7 @@ class Keys:
     number_count = "Number_Count"
     day_begin = "Day_Begin"
     week_number = "Week_Number"
+    group = 'Group'
 
 class IasaFaculty:
     abbreviation = 'ІПСА'
@@ -141,3 +145,9 @@ class IasaAdditional:
     df_name_teacher_spectre = 'teachers_foreign_spectre.csv'
     df_name_teacher_specialization = 'teachers_foreign_specialization.csv'
     df_name_faculty_chair = 'teachers_foreign_faculty_chair.csv'
+    df_name_day = 'teachers_day.csv'
+    df_name_time = 'teachers_time.csv'
+    df_name_group = 'teachers_group.csv'
+    df_name_teacher_day = 'teachers_foreign_day.csv'
+    df_name_teacher_time = 'teachers_foreign_time.csv'
+    df_name_teacher_group = 'teachers_foreign_group.csv'

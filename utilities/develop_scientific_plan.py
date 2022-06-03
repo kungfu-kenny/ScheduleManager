@@ -21,6 +21,16 @@ class DevelopScientificPlan:
         )
         
     @staticmethod
+    def save(df:pd.DataFrame, path:str) -> None:
+        """
+        Static method which is dedicated to save new dataframe
+        Input:  df = new dataframe
+                path = path to it
+        Output: we created dataframe values
+        """
+        df.to_csv(path, index=False)
+
+    @staticmethod
     def check_additional(path_file:str) -> None:
         """
         Static method which is dedicated to check the previous files
@@ -50,33 +60,9 @@ class DevelopScientificPlan:
                 result.append(r)
         if value_bool:
             return ';'.join(set(result)) 
-        return [
-            [i + 1, n] for i, n in enumerate(set(result))
-        ]
-
-    def develop_teachers_days(self) -> dict:
-        """
-        Method which is dedicated to develop the most favourable days for the teachers
-        Input:  None
-        Output: we developed the dictionary with them
-        """
-        pass
-
-    def develop_teachers_locations(self) -> dict:
-        """
-        Method which is dedicated to develop the most favourable locations for all of them
-        Input:  None
-        Output: we developed the teachers locations
-        """
-        pass
-
-    def develop_teachers_cabinets(self) -> dict:
-        """
-        Method which is dedicated to get the personal cabinets for all of the possible users
-        Input:  None
-        Output: we created the dict where the teachers can work
-        """
-        pass
+        return {
+            n: i + 1 for i, n in enumerate(set(result))
+        }
 
     def start_parse(self) -> None:
         """
@@ -88,24 +74,159 @@ class DevelopScientificPlan:
 
         with open(self.path_file, 'r') as calculated_teachers:
             value_list = json.load(calculated_teachers)
-        names = pd.read_csv(
-            os.path.join(
-                Folders.folder_storage, 
-                IasaAdditional.df_name_teacher
-            )
-        )[[Keys.id, Keys.name]].to_dict('records')
-        pprint(value_list[0])
-        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        names = {
+            f.get(Keys.name, '') : f.get(Keys.id)
+            for f in pd.read_csv(
+                os.path.join(
+                    Folders.folder_storage, 
+                    IasaAdditional.df_name_teacher
+                )
+            )[[Keys.id, Keys.name]].to_dict('records')
+        }
         groups = self.develop_unique_values(value_list, Keys.groups_list)
         times = self.develop_unique_values(value_list, Keys.time_begin)
         days = self.develop_unique_values(value_list, Keys.day_begin)
-        for name in names[:1]:
-            print(name)
+        
+        if not os.path.exists(
+            os.path.join(Folders.folder_storage, IasaAdditional.df_name_day)
+        ):
+            self.save(
+                pd.DataFrame(
+                    {
+                        Keys.id: [k for k, _ in days.items()],
+                        Keys.day_begin: [v for _, v in days.items()]
+                    }
+                ),
+                os.path.join(Folders.folder_storage, IasaAdditional.df_name_day)
+            )
+
+        if not os.path.exists(
+            os.path.join(Folders.folder_storage, IasaAdditional.df_name_group)
+        ):
+            self.save(
+                pd.DataFrame(
+                    {
+                        Keys.id: [k for k, _ in groups.items()],
+                        Keys.group: [v for _, v in groups.items()]
+                    }
+                ),
+                os.path.join(Folders.folder_storage, IasaAdditional.df_name_group)
+            )
+
+        if not os.path.exists(
+            os.path.join(Folders.folder_storage, IasaAdditional.df_name_time)
+        ):
+            self.save(
+                pd.DataFrame(
+                    {
+                        Keys.id: [k for k, _ in times.items()],
+                        Keys.time_begin: [v for _, v in times.items()]
+                    }
+                ),
+                os.path.join(Folders.folder_storage, IasaAdditional.df_name_time)
+            )
+
+        if all(
+            [
+                os.path.exists(
+                    os.path.join(Folders.folder_storage, f)
+                )
+                for f in 
+                [
+                    IasaAdditional.df_name_teacher_day,
+                    IasaAdditional.df_name_teacher_time,
+                    IasaAdditional.df_name_teacher_group
+                ]
+            ]
+        ):
+            return
+        teacher_group, teacher_time, teacher_day = [], [], []
+        for subject in value_list:
+            if not subject.get(Keys.name_subject_small):
+                continue
             
-        # for name in names[:1]:
-        #     list_name = [
-        #         f for f in value_list 
-        #         if f.get(Keys.name_teacher_searched, '') == name.get(Keys.name)
-        #     ]
-        #     pprint(self.develop_groups(list_name))
-        # pprint(list_name)
+            day = [
+                names.get(
+                    subject.get(Keys.name_teacher_searched),
+                    ''
+                ), 
+                days.get(
+                    subject.get(Keys.day_begin),
+                    ''
+                )
+            ]
+            time = [
+               names.get(
+                   subject.get(Keys.name_teacher_searched, ''),
+                    ''
+               ),
+               times.get(
+                   subject.get(Keys.time_begin, ''),
+                   ''
+               )
+            ] 
+            group = [
+                [
+                    names.get(
+                        subject.get(Keys.name_teacher_searched, ''),
+                        ''
+                    ),
+                    groups.get(
+                        k,
+                        ''
+                    )
+                ]
+               for k in subject.get(Keys.groups_list, [])
+            ]
+            if day not in teacher_day:
+                teacher_day.append(
+                    day
+                )
+            if time not in teacher_time:
+                teacher_time.append(
+                    time
+                )
+            for f in group:
+                if f not in teacher_group:
+                    teacher_group.append(
+                        f
+                    )
+        
+        if not os.path.exists(
+            os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_time)
+        ):
+            self.save(
+                pd.DataFrame(
+                    {
+                        Keys.id_teacher: [k for k, _ in teacher_time],
+                        Keys.id_time: [v for _, v in teacher_time]
+                    }
+                ),
+                os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_time)
+            )
+        
+        if not os.path.exists(
+            os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_group)
+        ):
+            self.save(
+                pd.DataFrame(
+                    {
+                        Keys.id_teacher: [k for k, _ in teacher_group],
+                        Keys.id_group: [v for _, v in teacher_group]
+                    }
+                ),
+                os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_group)
+            )
+        
+        if not os.path.exists(
+            os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_day)
+        ):
+            self.save(
+                pd.DataFrame(
+                    {
+                        Keys.id_teacher: [k for k, _ in teacher_day],
+                        Keys.id_day: [v for _, v in teacher_day]
+                    }
+                ),
+                os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_day)
+            )
