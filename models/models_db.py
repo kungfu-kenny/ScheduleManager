@@ -1,17 +1,24 @@
 from datetime import datetime
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import (create_engine,
-                        Table,
-                        Column,
-                        Boolean,
-                        Integer,
-                        String,
-                        DateTime,
-                        ForeignKey,
-                        PrimaryKeyConstraint)
+from sqlalchemy import (
+    create_engine,
+    Table,
+    Column,
+    Boolean,
+    Integer,
+    String,
+    DateTime,
+    ForeignKey,
+    PrimaryKeyConstraint,
+)
+from config import (
+    Keys, 
+    DataBase, 
+    IasaAdditional,
+)
 
-#TODO continue from here to work with the selected database and it's insertion
+
 Base = declarative_base()
 
 association_faculty_chair = Table(
@@ -207,3 +214,44 @@ class Specialization(Base):
         secondary=association_teacher_specialization, 
         back_populates="specialization"
     )
+
+
+class DatabaseCreate:
+    """
+    Class which is dedicated to develop the creation of the database
+    """
+    def __init__(self) -> None:
+        self.engine = create_engine(
+            f'postgresql://{DataBase.data}:{DataBase.pawd}@{DataBase.host}:{DataBase.port}/{DataBase.user}'
+        )
+        self.create_db()
+        self.session = self.produce_session()
+
+    def create_db(self):
+        """
+        Method which is dedicated to create databse values of this
+        Input:  None
+        Output: we created the selected values for the database values
+        """
+        try:
+            Base.metadata.create_all(self.engine)
+        except Exception as e:
+            print(f"We faced problems with Base: {e}")
+
+    def produce_session(self) -> object:
+        """
+        Method which is dedicated to create the session values for the database
+        Input:  None
+        Output: we create session for creation
+        """
+        Session = sessionmaker(bind=self.engine)
+        return Session()
+
+    def develop_database(self) -> None:
+        """
+        Method which is dedicated to develop database values 
+        Input:  None
+        Output: we created the database values
+        """
+        #TODO continue work from here
+        pass

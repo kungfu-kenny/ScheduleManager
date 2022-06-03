@@ -7,20 +7,39 @@ from utilities.develop_scientific_plan import DevelopScientificPlan
 from config import Folders
 
 
-try:
-    os.path.exists(Folders.folder_storage) or os.mkdir(Folders.folder_storage)
-    for cls in [
-        DataTeacherSp,
-        DataTeacherMmsa,
-        DevelopAdditionalCSV,
-        DataTeacherSchedule,
-        DevelopScientificPlan,
-    ]:
-        a = cls()
-        a.start_parse()
+def produce_parsers() -> None:
+    """
+    Function which is dedicated to create the csv values from the parsers
+    Input:  None
+    Output: we developed all possible values to the parsers
+    """
+    try:
+        os.path.exists(Folders.folder_storage) or os.mkdir(Folders.folder_storage)
+        for cls in [
+            DataTeacherSp,
+            DataTeacherMmsa,
+            DevelopAdditionalCSV,
+            DataTeacherSchedule,
+            DevelopScientificPlan,
+        ]:
+            a = cls()
+            a.start_parse()
 
-except Exception as e:
-    exc_type, exc_obj, exc_tb = sys.exc_info()
-    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    print(exc_type, fname, exc_tb.tb_lineno)
-    print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+
+def produce_database_creation() -> None:
+    """
+    Function which is dedicated to create the connection and basic values
+    Input:  None
+    Output: we created the database values to it
+    """
+    #TODO continue to work from here
+    pass
+
+if __name__ == '__main__':
+    produce_parsers()
+    produce_database_creation()

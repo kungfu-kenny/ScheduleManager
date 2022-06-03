@@ -88,7 +88,10 @@ class DevelopScientificPlan:
         days = self.develop_unique_values(value_list, Keys.day_begin)
         
         if not os.path.exists(
-            os.path.join(Folders.folder_storage, IasaAdditional.df_name_day)
+            os.path.join(
+                Folders.folder_storage, 
+                IasaAdditional.df_name_day
+            )
         ):
             self.save(
                 pd.DataFrame(
@@ -97,11 +100,17 @@ class DevelopScientificPlan:
                         Keys.day_begin: [v for _, v in days.items()]
                     }
                 ),
-                os.path.join(Folders.folder_storage, IasaAdditional.df_name_day)
+                os.path.join(
+                    Folders.folder_storage, 
+                    IasaAdditional.df_name_day
+                )
             )
 
         if not os.path.exists(
-            os.path.join(Folders.folder_storage, IasaAdditional.df_name_group)
+            os.path.join(
+                Folders.folder_storage, 
+                IasaAdditional.df_name_group
+            )
         ):
             self.save(
                 pd.DataFrame(
@@ -110,11 +119,17 @@ class DevelopScientificPlan:
                         Keys.group: [v for _, v in groups.items()]
                     }
                 ),
-                os.path.join(Folders.folder_storage, IasaAdditional.df_name_group)
+                os.path.join(
+                    Folders.folder_storage, 
+                    IasaAdditional.df_name_group
+                )
             )
 
         if not os.path.exists(
-            os.path.join(Folders.folder_storage, IasaAdditional.df_name_time)
+            os.path.join(
+                Folders.folder_storage, 
+                IasaAdditional.df_name_time
+            )
         ):
             self.save(
                 pd.DataFrame(
@@ -123,7 +138,10 @@ class DevelopScientificPlan:
                         Keys.time_begin: [v for _, v in times.items()]
                     }
                 ),
-                os.path.join(Folders.folder_storage, IasaAdditional.df_name_time)
+                os.path.join(
+                    Folders.folder_storage, 
+                    IasaAdditional.df_name_time
+                )
             )
 
         if all(
@@ -193,7 +211,10 @@ class DevelopScientificPlan:
                     )
         
         if not os.path.exists(
-            os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_time)
+            os.path.join(
+                Folders.folder_storage, 
+                IasaAdditional.df_name_teacher_time
+            )
         ):
             self.save(
                 pd.DataFrame(
@@ -202,11 +223,17 @@ class DevelopScientificPlan:
                         Keys.id_time: [v for _, v in teacher_time]
                     }
                 ),
-                os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_time)
+                os.path.join(
+                    Folders.folder_storage, 
+                    IasaAdditional.df_name_teacher_time
+                )
             )
         
         if not os.path.exists(
-            os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_group)
+            os.path.join(
+                Folders.folder_storage, 
+                IasaAdditional.df_name_teacher_group
+            )
         ):
             self.save(
                 pd.DataFrame(
@@ -215,11 +242,17 @@ class DevelopScientificPlan:
                         Keys.id_group: [v for _, v in teacher_group]
                     }
                 ),
-                os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_group)
+                os.path.join(
+                    Folders.folder_storage, 
+                    IasaAdditional.df_name_teacher_group
+                )
             )
         
         if not os.path.exists(
-            os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_day)
+            os.path.join(
+                Folders.folder_storage, 
+                IasaAdditional.df_name_teacher_day
+            )
         ):
             self.save(
                 pd.DataFrame(
@@ -228,5 +261,8 @@ class DevelopScientificPlan:
                         Keys.id_day: [v for _, v in teacher_day]
                     }
                 ),
-                os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher_day)
+                os.path.join(
+                    Folders.folder_storage, 
+                    IasaAdditional.df_name_teacher_day
+                )
             )
