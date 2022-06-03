@@ -104,6 +104,16 @@ class Faculty(Base):
         back_populates="faculty"
     )
 
+class Day(Base):
+    __tablename__ = 'day'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(20))
+
+class TimeStart(Base):
+    __tablename__ = 'time_start'
+    id = Column(Integer, primary_key=True)
+    time = Column(String, default='')
+
 class Group(Base):
     __tablename__ = 'group'
     id = Column(Integer, primary_key=True)

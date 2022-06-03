@@ -157,7 +157,7 @@ class DataTeacherSchedule(ParseTeachers):
                 IasaAdditional.df_name_teacher
             )
         )
-        value_name = value_name[Keys.name].to_list()#[:]
+        value_name = value_name[Keys.name].to_list()
         
         loop = asyncio.get_event_loop()
         list_html = loop.run_until_complete(

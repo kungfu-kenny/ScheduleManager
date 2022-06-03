@@ -3,6 +3,7 @@ from parsers.parse_teacher_sp import DataTeacherSp
 from parsers.parse_teacher_mmsa import DataTeacherMmsa
 from parsers.parse_teacher_schedule import DataTeacherSchedule
 from utilities.develop_csv import DevelopAdditionalCSV
+from utilities.develop_scientific_plan import DevelopScientificPlan
 from config import Folders
 
 
@@ -13,6 +14,7 @@ try:
         DataTeacherMmsa,
         DevelopAdditionalCSV,
         DataTeacherSchedule,
+        DevelopScientificPlan,
     ]:
         a = cls()
         a.start_parse()
