@@ -14,7 +14,7 @@ from sqlalchemy import (
 )
 from config import (
     Keys, 
-    DataBase, 
+    DataBasePostgre, 
     IasaAdditional,
 )
 
@@ -222,7 +222,8 @@ class DatabaseCreate:
     """
     def __init__(self) -> None:
         self.engine = create_engine(
-            f'postgresql://{DataBase.data}:{DataBase.pawd}@{DataBase.host}:{DataBase.port}/{DataBase.user}'
+            f'postgresql://{DataBasePostgre.data}:{DataBasePostgre.pawd}'\
+            f'@{DataBasePostgre.host}:{DataBasePostgre.port}/{DataBasePostgre.user}'
         )
         self.create_db()
         self.session = self.produce_session()
@@ -247,6 +248,16 @@ class DatabaseCreate:
         Session = sessionmaker(bind=self.engine)
         return Session()
 
+    @staticmethod
+    def develop_group() -> None:
+        """
+        
+        """
+        #TODO continue to add checkings and give 
+        pass
+
+
+
     def develop_database(self) -> None:
         """
         Method which is dedicated to develop database values 
@@ -254,4 +265,4 @@ class DatabaseCreate:
         Output: we created the database values
         """
         #TODO continue work from here
-        pass
+        self.develop_group()

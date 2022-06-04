@@ -11,7 +11,7 @@ class Folders:
         'storage'
     )
 
-class DataBase:
+class DataBasePostgre:
     host = os.getenv('HOST', '0.0.0.0')
     user = os.getenv('USER_DB', 'postgres')
     port = int(os.getenv('PORT', 5432))
