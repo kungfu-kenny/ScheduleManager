@@ -1,3 +1,6 @@
+import os
+import pandas as pd
+from pprint import pprint
 from datetime import datetime
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -14,6 +17,7 @@ from sqlalchemy import (
 )
 from config import (
     Keys, 
+    Folders,
     DataBasePostgre, 
     IasaAdditional,
 )
@@ -248,15 +252,155 @@ class DatabaseCreate:
         Session = sessionmaker(bind=self.engine)
         return Session()
 
-    @staticmethod
-    def develop_group() -> None:
+    def develop_group(self) -> None:
         """
+        Static method which is dedicated to create group values
+        Input: None
+        Output: we created to get values of the group
+        """
+        if self.session.query(Group.id).count():
+            return
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_group)
+        if not os.path.exists(path) or not os.path.isfile(path):
+            return
+        self.session.add_all(
+            [
+                Group(
+                    id=f.get(Keys.id, 0),
+                    name=f.get(Keys.group, '')
+                )
+                for f in
+                pd.read_csv(path).to_dict('records')
+            ]
+        )
+        self.session.commit()
+
+    def develop_chair(self) -> None:
+        """
+        Method which is dedicated to develop chair from the csv
+        Input:  None
+        Output: we created records on the database
+        """
+        if self.session.query(Chair.id).count():
+            return
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_chair)
+        if not os.path.exists(path) or not os.path.isfile(path):
+            return
+        self.session.add_all(
+            [
+                Chair(
+                    id=f.get(Keys.id, 0),
+                    name=f.get(Keys.name, ''),
+                    abbreviation=f.get(Keys.abbreviation, '')
+                )
+                for f in
+                pd.read_csv(path).to_dict('records')
+            ]
+        )
+        self.session.commit()
+
+    def develop_faculty(self) -> None:
+        """
+        Method which is dedicated to created neccessary faculty to the
+        """
+        if self.session.query(Faculty.id).count():
+            return
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_faculty)
+        if not os.path.exists(path) or not os.path.isfile(path):
+            return
+        self.session.add_all(
+            [
+                Faculty(
+                    id=f.get(Keys.id, 0),
+                    name=f.get(Keys.name, ''),
+                    abbreviation=f.get(Keys.abbreviation, '')
+                )
+                for f in 
+                pd.read_csv(path).to_dict('records')
+            ]
+        )
+        self.session.commit()
         
+    def develop_teacher(self) -> None:
         """
-        #TODO continue to add checkings and give 
-        pass
+        Static method which is dedicated to create teacher values
+        Input: None
+        Output: we created to get values of the teacher
+        """
+        self.develop_faculty() or self.develop_chair()
+        if self.session.query(Teacher.id).count():
+            return
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_teacher)
+        if not os.path.exists(path) or not os.path.isfile(path):
+            return
+        self.session.add_all(
+            [
+                Teacher(
+                    id=f.get(Keys.id, 0),
+                    name=f.get(Keys.name, ''),
+                    link=f.get(Keys.link, ''),
+                    birthdate=f.get(Keys.birthdate, ''),
+                    birthplace=f.get(Keys.birthplace, ''),
+                    education=f.get(Keys.education, ''),
+                    year_working=f.get(Keys.year, ''),
+                    accolodates_scientific=f.get(Keys.accolodates_scientific, ''),
+                    accolodates_academic=f.get(Keys.accolodates_academic, ''),
+                    accolodates_honor=f.get(Keys.accolodates_honor, ''),
+                    tasks=f.get(Keys.tasks, ''),
+                    chair_id=f.get(Keys.id_chair, 0),
+                    faculty_id=f.get(Keys.id_faculty, 0)
+                )
+                for f in
+                pd.read_csv(path).to_dict('records')
+            ]
+        )
+        self.session.commit()
 
+    def develop_subject(self) -> None:
+        """
+        Static method which is dedicated to create subject values
+        Input: None
+        Output: we created to get values of the subject
+        """
+        if self.session.query(Subject.id).count():
+            return
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_subject)
+        if not os.path.exists(path) or not os.path.isfile(path):
+            return
+        self.session.add_all(
+            [
+                Subject(
+                    id=f.get(Keys.id, 0),
+                    name=f.get(Keys.subject, '')
+                )
+                for f in
+                pd.read_csv(path).to_dict('records')
+            ]
+        )
+        self.session.commit()
 
+    def develop_scientific_spectre(self) -> None:
+        """
+        Method which is dedicated to work with scientific spectre
+        Input:  None
+        Output: we created scientific spectre
+        """
+        if self.session.query(ScienceSpectre.id).count():
+            return
+        path = os.path.join(Folders.folder_storage, IasaAdditional.df_name_spectre)
+        if not os.path.exists(path) or not os.path.isfile(path):
+            return
+        self.session.add_all(
+            [
+                ScienceSpectre(
+                    id=f.get(Keys.id, 0),
+                    name=f.get(Keys.science_spectre, '')
+                )
+                for f in
+                pd.read_csv(path).to_dict('records')
+            ]
+        )
+        self.session.commit()
 
     def develop_database(self) -> None:
         """
@@ -265,4 +409,7 @@ class DatabaseCreate:
         Output: we created the database values
         """
         #TODO continue work from here
+        self.develop_teacher()
+        self.develop_subject()
+        self.develop_scientific_spectre()
         self.develop_group()

@@ -16,6 +16,8 @@ def produce_parsers() -> None:
     """
     try:
         os.path.exists(Folders.folder_storage) or os.mkdir(Folders.folder_storage)
+        if not os.getenv("CHECK_FILES", False):
+            return
         for cls in [
             DataTeacherSp,
             DataTeacherMmsa,
@@ -41,7 +43,8 @@ def produce_database_creation() -> None:
     Output: we created the database values to it
     """
     #TODO continue to work from here
-    DatabaseCreate().develop_database()
+    a = DatabaseCreate()
+    a.develop_database()
 
 
 if __name__ == '__main__':

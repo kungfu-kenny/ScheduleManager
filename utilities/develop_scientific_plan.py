@@ -115,8 +115,8 @@ class DevelopScientificPlan:
             self.save(
                 pd.DataFrame(
                     {
-                        Keys.id: [k for k, _ in groups.items()],
-                        Keys.group: [v for _, v in groups.items()]
+                        Keys.id: [v for _, v in groups.items()],
+                        Keys.group: [k for k, _ in groups.items()]
                     }
                 ),
                 os.path.join(
